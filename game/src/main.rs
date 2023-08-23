@@ -57,8 +57,9 @@ pub fn main() -> Result<(), String> {
         100,
     );
 
-    enviroment.push((Rect::new(12, 12, 100, 100)));
     enviroment.push(Rect::new(12, 12, 100, 100));
+    enviroment.push(Rect::new(200, 200, 100, 100));
+    enviroment.push(Rect::new(100, 100, 100, 100));
 
     'running: loop {
         for event in event_pump.poll_iter() {
