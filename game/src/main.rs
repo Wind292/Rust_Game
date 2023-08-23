@@ -13,6 +13,8 @@ const FPS: u32 = 60;
 
 const CAPTION: &str = "GAME";
 
+const SCREEN_WIDTH: u32 = 800;
+const SCREEN_HEIGHT: u32 = 600;
 
 // #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
 struct KeyState {
@@ -30,7 +32,7 @@ pub fn main() -> Result<(), String> {
     let video_subsystem = sdl_context.video()?;
 
     let window = video_subsystem
-        .window(CAPTION, 800, 600)
+        .window(CAPTION, SCREEN_WIDTH, SCREEN_HEIGHT)
         .position_centered()
         .opengl()
         .build()
@@ -39,17 +41,24 @@ pub fn main() -> Result<(), String> {
     let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
     let mut event_pump = sdl_context.event_pump()?;
 
-    // VAR DECLARES
-
-    let player_speed = 5;
-    let mut square = Rect::new(100, 100, 100, 100);
-    
+    // keys
     let mut keys = KeyState{
         w: false,
         a: false,
         s: false,
         d: false,
     };
+
+    // Vectors for enviroment 
+    let mut enviroment: Vec<Rect> = vec![];
+
+
+    // VAR DECLARES
+
+    let player_speed = 5;
+    let mut square = Rect::new(((SCREEN_WIDTH/2)-50) as i32, ((SCREEN_HEIGHT/2)-50) as i32, 100, 100);
+    
+    
 
 
     'running: loop {
@@ -80,22 +89,14 @@ pub fn main() -> Result<(), String> {
         }
         // LOGIC CODE BELOW
 
-        if keys.w{
-            square.y -= player_speed;
-        }
+        for rect in &enviroment{
 
-        if keys.s{
-            square.y += player_speed;
+            if keys.w {
+                rect.y
+
+            }
+
         }
-        
-        if keys.a{
-            square.x -= player_speed;
-        }
-        
-        if keys.d{
-            square.x += player_speed;
-        }
-        
 
         
 
