@@ -94,6 +94,9 @@ pub fn main() -> Result<(), String> {
 
     let check_in_frame_rect = Rect::new(0,0,SCREEN_WIDTH,SCREEN_HEIGHT);
 
+    // enviroment.0.push(Rect::new(12, 12, 100, 100))
+    // enviroment.1.push(Rect::new(200, 200, 100, 100));
+    // enviroment.2.push(Rect::new(100, 100, 100, 100));
 
     compile_file(&mut enviroment, open_file(MAP_DIRECTORY));
 
@@ -119,6 +122,8 @@ pub fn main() -> Result<(), String> {
                 _ => {}
             }
         }
+
+
 
         // LOGIC CODE BELOW
         for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut())
@@ -184,8 +189,53 @@ pub fn main() -> Result<(), String> {
     
 
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
-    }
+    
 
+
+
+        // LOGIC CODE BELOW
+        for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut())
+        {
+            if keys.w {
+                rect.y += player_speed;
+            }
+            if keys.s {
+                rect.y -= player_speed;
+            }
+            if keys.a {
+                rect.x += player_speed;
+            }
+            if keys.d {
+                rect.x -= player_speed;
+            }
+        }
+        for rect in &mut enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut()) {
+            if rect.has_intersection(square) {
+                let x_overlap = if square.x < rect.x() {
+                    (square.x + square.width() as i32) - rect.x()
+                } else {
+                    square.x - (rect.x() + rect.width() as i32)
+                };
+        
+                let y_overlap = if square.y < rect.y() {
+                    (square.y + square.height() as i32) - rect.y()
+                } else {
+                    square.y - (rect.y() + rect.height() as i32)
+                };
+        
+                // Adjust rectangle's position based on the smaller overlap value
+                if x_overlap.abs() < y_overlap.abs() {
+                    rect.x += x_overlap;
+                } else {
+                    rect.y += y_overlap;
+                }
+            }
+            }
+        }
+        // DRAW CODE BELOw
+
+        //Set background
+        
     Ok(())
 }
 
