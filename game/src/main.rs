@@ -15,7 +15,7 @@ const CAPTION: &str = "GAME";
 
 
 // #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
-struct KeyState {
+struct KeyState {//holds keystate for movement keys
 
     w: bool,
     s: bool,
@@ -27,7 +27,7 @@ struct KeyState {
 
 pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
-    let video_subsystem = sdl_context.video()?;
+    let video_subsystem = sdl_context.video()?;//defines window settings
 
     let window = video_subsystem
         .window(CAPTION, 800, 600)
@@ -44,7 +44,7 @@ pub fn main() -> Result<(), String> {
     let player_speed = 5;
     let mut square = Rect::new(100, 100, 100, 100);
     
-    let mut keys = KeyState{
+    let mut keys = KeyState{//sets keystate to false by default
         w: false,
         a: false,
         s: false,
@@ -58,7 +58,7 @@ pub fn main() -> Result<(), String> {
                 Event::Quit { .. } => break 'running,
                 Event::KeyDown { keycode, .. } => {
                     match keycode {
-                        Some(Keycode::Escape) => break 'running,
+                        Some(Keycode::Escape) => break 'running,//movement keys turning on movement
                         Some(Keycode::A) => keys.a = true,
                         Some(Keycode::D) => keys.d = true,
                         Some(Keycode::S) => keys.s = true,
@@ -66,7 +66,7 @@ pub fn main() -> Result<(), String> {
                         _=>{}
                     }
                 }
-                Event::KeyUp { keycode, .. } => {
+                Event::KeyUp { keycode, .. } => {//gets key up from movement keys to stop movement
                     match keycode {
                         Some(Keycode::A) => keys.a = false,
                         Some(Keycode::D) => keys.d = false,
@@ -81,7 +81,7 @@ pub fn main() -> Result<(), String> {
         // LOGIC CODE BELOW
 
         if keys.w{
-            square.y -= player_speed;
+            square.y -= player_speed;//moves the player
         }
 
         if keys.s{
@@ -104,12 +104,12 @@ pub fn main() -> Result<(), String> {
         // DRAW CODE BELOW
 
         //Set background
-        canvas.set_draw_color(Color::RGB(255, 50, 50));
+        canvas.set_draw_color(Color::RGB(255, 50, 50));//set backround color
         canvas.present();
         canvas.clear();
 
         //Draw other things
-        canvas.set_draw_color(Color::RGB(0, 0, 255));
+        canvas.set_draw_color(Color::RGB(0, 0, 255));//draws our player
         canvas.fill_rect(square).unwrap();
 
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
