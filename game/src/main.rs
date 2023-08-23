@@ -4,11 +4,10 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
-use sdl2::sys::False;
 use std::env;
 use std::fs;
-use std::time::Duration;
-
+use std::time::{Duration, Instant};
+use sdl2::video::Window;
 const FPS: u32 = 60;
 
 const CAPTION: &str = "GAME";
@@ -26,12 +25,42 @@ struct KeyState {
     a: bool,
     d: bool,
 }
+//FPS COUNTER STUFF
+struct FPSCounter {
+    frame_count: u32,
+    last_update: Instant,
+    current_fps: u32, // Add this field
+}
+
+impl FPSCounter {
+    fn new() -> Self {
+        FPSCounter {
+            frame_count: 0,
+            last_update: Instant::now(),
+            current_fps: 0, // Initialize current FPS
+        }
+    }
+
+    fn tick(&mut self) {
+        self.frame_count += 1;
+        let now = Instant::now();
+        if now.duration_since(self.last_update) >= Duration::from_secs(1) {
+            self.current_fps = self.frame_count;
+            self.frame_count = 0;
+            self.last_update = now;
+        }
+    }
+
+    fn get_current_fps(&self) -> u32 {
+        self.current_fps
+    }
+}
 
 pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
 
-    let window = video_subsystem
+    let mut window = video_subsystem
         .window(CAPTION, SCREEN_WIDTH, SCREEN_HEIGHT)
         .position_centered()
         .opengl()
@@ -53,8 +82,7 @@ pub fn main() -> Result<(), String> {
     let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>) = (vec![], vec![], vec![]);
 
     // VAR DECLARES
-
-    let root = env::current_dir().expect("Failed to get current working directory"); //ROOT
+    let mut fps_counter = FPSCounter::new();
 
     let player_speed = 5;
     let mut square = Rect::new(
@@ -64,9 +92,8 @@ pub fn main() -> Result<(), String> {
         100,
     );
 
-    // enviroment.0.push(Rect::new(12, 12, 100, 100));
-    // enviroment.1.push(Rect::new(200, 200, 100, 100));
-    // enviroment.2.push(Rect::new(100, 100, 100, 100));
+    let check_in_frame_rect = Rect::new(0,0,SCREEN_WIDTH,SCREEN_HEIGHT);
+
 
     compile_file(&mut enviroment, open_file(MAP_DIRECTORY));
 
@@ -92,8 +119,6 @@ pub fn main() -> Result<(), String> {
                 _ => {}
             }
         }
-
-
 
         // LOGIC CODE BELOW
         for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut())
@@ -127,22 +152,36 @@ pub fn main() -> Result<(), String> {
 
         for rect in &enviroment.0 {
             //YELLOW
-            canvas.set_draw_color(Color::RGB(255, 255, 0));
-            canvas.fill_rect(*rect).unwrap();
+            if rect.has_intersection(check_in_frame_rect){
+                canvas.set_draw_color(Color::RGB(255, 255, 0));
+                canvas.fill_rect(*rect).unwrap();
+            }
         }
         for rect in &enviroment.1 {
             //GREEN
-            canvas.set_draw_color(Color::RGB(0, 255, 0));
-            canvas.fill_rect(*rect).unwrap();
+            if rect.has_intersection(check_in_frame_rect){
+                canvas.set_draw_color(Color::RGB(0, 255, 0));
+                canvas.fill_rect(*rect).unwrap();
+            }
         }
         for rect in &enviroment.2 {
             //RED
+            if rect.has_intersection(check_in_frame_rect){
             canvas.set_draw_color(Color::RGB(255, 0, 0));
             canvas.fill_rect(*rect).unwrap();
+            }
         }
 
         canvas.set_draw_color(Color::RGB(0, 0, 255));
         canvas.fill_rect(square).unwrap();
+
+
+        fps_counter.tick();
+
+        let current_fps = fps_counter.get_current_fps();
+        let new_title = format!("FPS: {} / {}", current_fps, FPS);
+        canvas.window_mut().set_title(&new_title).unwrap();
+    
 
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
     }
@@ -152,7 +191,6 @@ pub fn main() -> Result<(), String> {
 
 fn open_file(dir: &str) -> String {
     let contents = fs::read_to_string(dir).expect("Should have been able to read the file");
-
     contents
 }
 //red     //green  //yellow
