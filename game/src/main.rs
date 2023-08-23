@@ -3,12 +3,25 @@ extern crate sdl2;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
-use std::time::Duration;
 use sdl2::rect::Rect;
 use std::f64;
+use std::time::Duration;
+
+
 const FPS: u32 = 60;
 
 const CAPTION: &str = "GAME";
+
+
+// #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
+// enum Dir {
+//     Up,
+//     Down,
+//     Left,
+//     Right,
+// }
+
+
 
 pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
@@ -25,9 +38,10 @@ pub fn main() -> Result<(), String> {
     let mut event_pump = sdl_context.event_pump()?;
 
     // VAR DECLARES
-    
-    let mut square = Rect::new(100, 100, 100, 100);
 
+    let player_speed = 30;
+
+    let mut square = Rect::new(100, 100, 100, 100);
 
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -37,42 +51,50 @@ pub fn main() -> Result<(), String> {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => break 'running,
+                
+                Event::KeyDown {
+                    keycode: Some(Keycode::W),
+                    ..
+                        } => square.y -= player_speed,
+
+                Event::KeyDown {
+                    keycode: Some(Keycode::S),
+                    ..
+                        } => square.y += player_speed,
+
+                Event::KeyDown {
+                    keycode: Some(Keycode::A),
+                    ..
+                        } => square.x -= player_speed,
+
+                Event::KeyDown {
+                    keycode: Some(Keycode::D),
+                    ..
+                        } => square.x += player_speed,
+                        
                 _ => {}
             }
+                
         }
         // LOGIC CODE BELOW
 
-
-        square.y += 1; // adds 1 to the y value of square
-        square.x += 3;
-
+        // square.y += 1; // adds 1 to the y value of square
+        // square.x += 3;
 
         // DRAW CODE BELOW
-        
+
         //Set background
         canvas.set_draw_color(Color::RGB(255, 50, 50));
         canvas.present();
         canvas.clear();
 
-
         //Draw other things
         canvas.set_draw_color(Color::RGB(0, 0, 255));
         canvas.fill_rect(square).unwrap();
-
-
-
 
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
         // The rest of the game loop goes here...
     }
 
     Ok(())
-}
-
-fn ease_in_out(t: f64) -> f64 {
-    if t < 0.5 {
-        2.0 * t * t
-    } else {
-        -1.0 + (4.0 - 2.0 * t) * t
-    }
 }

@@ -389,7 +389,6 @@ fn draw_string(
         string_location += 1;
     }
 }
-
 fn draw_char(
     _c: char,
     canvas: &mut Canvas<Window>,
