@@ -192,8 +192,9 @@ pub fn main() -> Result<(), String> {
     
 
 
-
+        let mut cameracanmove = false;
         // LOGIC CODE BELOW
+      if cameracanmove = true{
         for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut())
         {
             if keys.w {
@@ -208,26 +209,33 @@ pub fn main() -> Result<(), String> {
             if keys.d {
                 rect.x -= player_speed;
             }
+        
         }
+    }
+        
         for rect in &mut enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut()) {
             if rect.has_intersection(square) {
-                let x_overlap = if square.x < rect.x() {
-                    (square.x + square.width() as i32) - rect.x()
+                let x_overlap = if rect.x < square.x() {
+                    (rect.x + rect.width() as i32) - square.x()
                 } else {
-                    square.x - (rect.x() + rect.width() as i32)
+                    rect.x - (square.x() + square.width() as i32)
                 };
         
-                let y_overlap = if square.y < rect.y() {
-                    (square.y + square.height() as i32) - rect.y()
+                let y_overlap = if rect.y < square.y() {
+                    (rect.y + rect.height() as i32) - square.y()
                 } else {
-                    square.y - (rect.y() + rect.height() as i32)
+                    rect.y - (square.y() + square.height() as i32)
+                    
                 };
         
                 // Adjust rectangle's position based on the smaller overlap value
                 if x_overlap.abs() < y_overlap.abs() {
-                    rect.x += x_overlap;
+                    square.x += x_overlap;
+                    cameracanmove = false;
                 } else {
-                    rect.y += y_overlap;
+                    square.y += y_overlap;
+                    cameracanmove =true;
+
                 }
             }
             }
