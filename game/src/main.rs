@@ -4,6 +4,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
+use std::env;
 use std::time::Duration;
 
 
@@ -58,8 +59,11 @@ pub fn main() -> Result<(), String> {
     let player_speed = 5;
     let mut square = Rect::new(((SCREEN_WIDTH/2)-50) as i32, ((SCREEN_HEIGHT/2)-50) as i32, 100, 100);
     
-    
-
+    enviroment.push(Rect::new( 
+        12,
+        12,
+        100,
+        100,));
 
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -98,10 +102,10 @@ pub fn main() -> Result<(), String> {
                 rect.y -= player_speed;
             }
             if keys.a {
-                rect.y -= player_speed;
+                rect.x += player_speed;
             }
             if keys.d {
-                rect.y += player_speed;
+                rect.x -= player_speed;
             }
         }
 
@@ -117,6 +121,12 @@ pub fn main() -> Result<(), String> {
         canvas.clear();
 
         //Draw other things
+
+        for rect in &enviroment{
+            canvas.set_draw_color(Color::RGB(0, 255, 0));
+            canvas.fill_rect(*rect).unwrap();
+        }
+
         canvas.set_draw_color(Color::RGB(0, 0, 255));
         canvas.fill_rect(square).unwrap();
 
