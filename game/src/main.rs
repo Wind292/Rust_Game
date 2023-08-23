@@ -99,8 +99,12 @@ pub fn main() -> Result<(), String> {
                 rect.x -= player_speed;
             }
         }
-
-        // DRAW CODE BELOW
+        for rect in &enviroment{
+            if rect.has_intersection(square){
+                println!("intersected")
+            }
+        }
+        // DRAW CODE BELOw
 
         //Set background
         canvas.set_draw_color(Color::RGB(255, 50, 50));
