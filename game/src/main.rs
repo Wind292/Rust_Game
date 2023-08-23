@@ -4,8 +4,12 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
-use std::env;
+use sdl2::sys::False;
 use std::time::Duration;
+use std::env;
+use std::fs;
+
+
 
 const FPS: u32 = 60;
 
@@ -13,6 +17,9 @@ const CAPTION: &str = "GAME";
 
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 600;
+const MAP_DIRECTORY: &str = "maps/testlevel.mp"; // can have a file extention of anything
+
+const CUBE_SIZE: u32 = 100;
 
 // #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
 struct KeyState {
@@ -45,9 +52,12 @@ pub fn main() -> Result<(), String> {
     };
 
     // Vectors for enviroment
-    let mut enviroment: Vec<Rect> = vec![];
+    let mut enviroment:(Vec<Rect>,Vec<Rect>,Vec<Rect>)  = (vec![],vec![],vec![]);
 
     // VAR DECLARES
+
+    let root = env::current_dir().expect("Failed to get current working directory");  //ROOT
+
 
     let player_speed = 5;
     let mut square = Rect::new(
@@ -57,9 +67,11 @@ pub fn main() -> Result<(), String> {
         100,
     );
 
-    enviroment.push(Rect::new(12, 12, 100, 100));
-    enviroment.push(Rect::new(200, 200, 100, 100));
-    enviroment.push(Rect::new(100, 100, 100, 100));
+    // enviroment.0.push(Rect::new(12, 12, 100, 100));
+    // enviroment.1.push(Rect::new(200, 200, 100, 100));
+    // enviroment.2.push(Rect::new(100, 100, 100, 100));
+
+    compile_file(&mut enviroment, open_file(MAP_DIRECTORY));
 
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -85,7 +97,7 @@ pub fn main() -> Result<(), String> {
         }
         // LOGIC CODE BELOW
 
-        for rect in &mut enviroment {
+        for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut()) {
             if keys.w {
                 rect.y += player_speed;
             }
@@ -103,16 +115,27 @@ pub fn main() -> Result<(), String> {
         // DRAW CODE BELOW
 
         //Set background
-        canvas.set_draw_color(Color::RGB(255, 50, 50));
+        canvas.set_draw_color(Color::RGB(100, 100, 100));
         canvas.present();
         canvas.clear();
 
         //Draw other things
 
-        for rect in &enviroment {
+        for rect in &enviroment.0 { //YELLOW
+            canvas.set_draw_color(Color::RGB(255, 255, 0));
+            canvas.fill_rect(*rect).unwrap();
+        }
+        for rect in &enviroment.1 { //GREEN
             canvas.set_draw_color(Color::RGB(0, 255, 0));
             canvas.fill_rect(*rect).unwrap();
         }
+        for rect in &enviroment.2 { //RED
+            canvas.set_draw_color(Color::RGB(255, 0, 0));
+            canvas.fill_rect(*rect).unwrap();
+        }
+
+
+
 
         canvas.set_draw_color(Color::RGB(0, 0, 255));
         canvas.fill_rect(square).unwrap();
@@ -121,4 +144,52 @@ pub fn main() -> Result<(), String> {
     }
 
     Ok(())
+}
+
+
+fn open_file(dir: &str) -> String{
+
+    let contents = fs::read_to_string(dir).expect("Should have been able to read the file");
+
+    contents
+
+}                           
+                                   //red     //green  //yellow
+fn compile_file(enviroment: &mut (Vec<Rect>,Vec<Rect>,Vec<Rect>),file:String){
+
+    let mut skip = false;
+    let mut yval = 0;
+    let mut xval = 0;
+
+    for char in file.chars(){
+
+        if char == '\n'{
+            skip = false;
+            xval = -1;
+            yval +=1;
+        }
+
+        if skip == false{
+            if char == '#'{// coment
+                skip = true;
+            }
+  
+            else if char == '&'{ //red
+                enviroment.0.push(Rect::new((xval as u32 *CUBE_SIZE)as i32, (yval*CUBE_SIZE)as i32, CUBE_SIZE, CUBE_SIZE));
+            }    
+            else if char == '%'{ //green
+                enviroment.1.push(Rect::new((xval as u32 *CUBE_SIZE)as i32, (yval*CUBE_SIZE)as i32, CUBE_SIZE, CUBE_SIZE));
+            }    
+            else if char == '@'{ //yellow
+                enviroment.2.push(Rect::new((xval as u32 *CUBE_SIZE)as i32, (yval*CUBE_SIZE)as i32, CUBE_SIZE, CUBE_SIZE));
+            }    
+
+            xval += 1;
+            
+            
+        }
+
+
+        
+    }
 }
