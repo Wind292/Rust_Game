@@ -4,9 +4,10 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
-use std::f64;
 use std::time::Duration;
 
+
+ 
 
 const FPS: u32 = 60;
 
@@ -14,13 +15,14 @@ const CAPTION: &str = "GAME";
 
 
 // #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
-// enum Dir {
-//     Up,
-//     Down,
-//     Left,
-//     Right,
-// }
+struct KeyState {
 
+    w: bool,
+    s: bool,
+    a: bool,
+    d: bool
+
+}
 
 
 pub fn main() -> Result<(), String> {
@@ -38,53 +40,66 @@ pub fn main() -> Result<(), String> {
     let mut event_pump = sdl_context.event_pump()?;
 
     // VAR DECLARES
-    let mut accumulatedydist =0;
-    let mut accumulatedxdist =0;
-    let player_speed = 300;
-    let delta_time_seconds:f32 = 0.05;
+
+    let player_speed = 5;
     let mut square = Rect::new(100, 100, 100, 100);
+    
+    let mut keys = KeyState{
+        w: false,
+        a: false,
+        s: false,
+        d: false,
+    };
+
 
     'running: loop {
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => break 'running,
-                
-                Event::KeyDown {
-                    keycode: Some(Keycode::W),
-                    ..
-                        } => accumulatedydist -= player_speed,
-
-                Event::KeyDown {
-                    keycode: Some(Keycode::S),
-                    ..
-                        } => accumulatedydist += player_speed,
-
-                Event::KeyDown {
-                    keycode: Some(Keycode::A),
-                    ..
-                        } => accumulatedxdist -= player_speed,
-
-                Event::KeyDown {
-                    keycode: Some(Keycode::D),
-                    ..
-                        } => accumulatedxdist += player_speed,
-                        
+                Event::Quit { .. } => break 'running,
+                Event::KeyDown { keycode, .. } => {
+                    match keycode {
+                        Some(Keycode::Escape) => break 'running,
+                        Some(Keycode::A) => keys.a = true,
+                        Some(Keycode::D) => keys.d = true,
+                        Some(Keycode::S) => keys.s = true,
+                        Some(Keycode::W) => keys.w = true,
+                        _=>{}
+                    }
+                }
+                Event::KeyUp { keycode, .. } => {
+                    match keycode {
+                        Some(Keycode::A) => keys.a = false,
+                        Some(Keycode::D) => keys.d = false,
+                        Some(Keycode::S) => keys.s = false,
+                        Some(Keycode::W) => keys.w = false,
+                        _=>{}
+                    }
+                }
                 _ => {}
             }
-                square.x += (accumulatedxdist as f32 * delta_time_seconds) as i32;
-                square.y += (accumulatedydist as f32 * delta_time_seconds) as i32;
-                accumulatedxdist =0;
-                accumulatedydist =0;
-                ::std::thread::sleep(Duration::new(0, 10000000));
         }
         // LOGIC CODE BELOW
 
-        // square.y += 1; // adds 1 to the y value of square
-        // square.x += 3;
+        if keys.w{
+            square.y -= player_speed;
+        }
+
+        if keys.s{
+            square.y += player_speed;
+        }
+        
+        if keys.a{
+            square.x -= player_speed;
+        }
+        
+        if keys.d{
+            square.x += player_speed;
+        }
+        
+
+        
+
+
 
         // DRAW CODE BELOW
 
@@ -98,7 +113,8 @@ pub fn main() -> Result<(), String> {
         canvas.fill_rect(square).unwrap();
 
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
-        // The rest of the game loop goes here...
+        
+        
     }
 
     Ok(())
