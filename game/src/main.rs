@@ -38,9 +38,10 @@ pub fn main() -> Result<(), String> {
     let mut event_pump = sdl_context.event_pump()?;
 
     // VAR DECLARES
-
-    let player_speed = 30;
-
+    let mut accumulatedydist =0;
+    let mut accumulatedxdist =0;
+    let player_speed = 300;
+    let delta_time_seconds:f32 = 0.05;
     let mut square = Rect::new(100, 100, 100, 100);
 
     'running: loop {
@@ -55,26 +56,30 @@ pub fn main() -> Result<(), String> {
                 Event::KeyDown {
                     keycode: Some(Keycode::W),
                     ..
-                        } => square.y -= player_speed,
+                        } => accumulatedydist -= player_speed,
 
                 Event::KeyDown {
                     keycode: Some(Keycode::S),
                     ..
-                        } => square.y += player_speed,
+                        } => accumulatedydist += player_speed,
 
                 Event::KeyDown {
                     keycode: Some(Keycode::A),
                     ..
-                        } => square.x -= player_speed,
+                        } => accumulatedxdist -= player_speed,
 
                 Event::KeyDown {
                     keycode: Some(Keycode::D),
                     ..
-                        } => square.x += player_speed,
+                        } => accumulatedxdist += player_speed,
                         
                 _ => {}
             }
-                
+                square.x += (accumulatedxdist as f32 * delta_time_seconds) as i32;
+                square.y += (accumulatedydist as f32 * delta_time_seconds) as i32;
+                accumulatedxdist =0;
+                accumulatedydist =0;
+                ::std::thread::sleep(Duration::new(0, 10000000));
         }
         // LOGIC CODE BELOW
 
