@@ -1,42 +1,45 @@
-use fermium::{
-    prelude::{
-        SDL_CreateRenderer, SDL_Delay, SDL_RenderClear, SDL_RenderPresent,
-        SDL_SetRenderDrawColor
-    },
-    video::*,
-    *,
-};
- 
-// Tested on Windows with msvc compiler toolchain
-pub fn main() {
-    unsafe {
-        assert_eq!(SDL_Init(SDL_INIT_EVERYTHING), 0);
- 
-        let window = SDL_CreateWindow(
-            b"demo\0".as_ptr().cast(),
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            800,
-            600,
-            (SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI).0,
-        );
-        // Panic if window is not null
-        assert!(!window.is_null());
- 
-        let renderer = SDL_CreateRenderer(window, -1, 1);
-        // Panic if renderer is not null
-        assert!(!renderer.is_null());
-        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
- 
-        loop {
-            SDL_RenderClear(renderer);
- 
-            SDL_RenderPresent(renderer);
- 
-            SDL_Delay(10);
+extern crate sdl2;
+
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
+use sdl2::pixels::Color;
+use std::time::Duration;
+
+pub fn main() -> Result<(), String> {
+    let sdl_context = sdl2::init()?;
+    let video_subsystem = sdl_context.video()?;
+
+    let window = video_subsystem
+        .window("rust-sdl2 demo: Video", 800, 600)
+        .position_centered()
+        .opengl()
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
+
+    canvas.set_draw_color(Color::RGB(255, 0, 0));
+    canvas.clear();
+    canvas.present();
+    let mut event_pump = sdl_context.event_pump()?;
+
+    'running: loop {
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Some(Keycode::Escape),
+                    ..
+                } => break 'running,
+                _ => {}
+            }
         }
- 
-        SDL_DestroyWindow(window);
-        SDL_Quit();
+
+        canvas.clear();
+        canvas.present();
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
+        // The rest of the game loop goes here...
     }
+
+    Ok(())
 }
