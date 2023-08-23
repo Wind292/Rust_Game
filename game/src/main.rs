@@ -5,11 +5,9 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::sys::False;
-use std::time::Duration;
 use std::env;
 use std::fs;
-
-
+use std::time::Duration;
 
 const FPS: u32 = 60;
 
@@ -52,12 +50,11 @@ pub fn main() -> Result<(), String> {
     };
 
     // Vectors for enviroment
-    let mut enviroment:(Vec<Rect>,Vec<Rect>,Vec<Rect>)  = (vec![],vec![],vec![]);
+    let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>) = (vec![], vec![], vec![]);
 
     // VAR DECLARES
 
-    let root = env::current_dir().expect("Failed to get current working directory");  //ROOT
-
+    let root = env::current_dir().expect("Failed to get current working directory"); //ROOT
 
     let player_speed = 5;
     let mut square = Rect::new(
@@ -95,9 +92,12 @@ pub fn main() -> Result<(), String> {
                 _ => {}
             }
         }
-        // LOGIC CODE BELOW
 
-        for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut()) {
+
+
+        // LOGIC CODE BELOW
+        for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut())
+        {
             if keys.w {
                 rect.y += player_speed;
             }
@@ -111,8 +111,8 @@ pub fn main() -> Result<(), String> {
                 rect.x -= player_speed;
             }
         }
-        for rect in &enviroment{
-            if rect.has_intersection(square){
+        for rect in &mut enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut()) {
+            if rect.has_intersection(square) {
                 println!("intersected")
             }
         }
@@ -125,21 +125,21 @@ pub fn main() -> Result<(), String> {
 
         //Draw other things
 
-        for rect in &enviroment.0 { //YELLOW
+        for rect in &enviroment.0 {
+            //YELLOW
             canvas.set_draw_color(Color::RGB(255, 255, 0));
             canvas.fill_rect(*rect).unwrap();
         }
-        for rect in &enviroment.1 { //GREEN
+        for rect in &enviroment.1 {
+            //GREEN
             canvas.set_draw_color(Color::RGB(0, 255, 0));
             canvas.fill_rect(*rect).unwrap();
         }
-        for rect in &enviroment.2 { //RED
+        for rect in &enviroment.2 {
+            //RED
             canvas.set_draw_color(Color::RGB(255, 0, 0));
             canvas.fill_rect(*rect).unwrap();
         }
-
-
-
 
         canvas.set_draw_color(Color::RGB(0, 0, 255));
         canvas.fill_rect(square).unwrap();
@@ -150,50 +150,55 @@ pub fn main() -> Result<(), String> {
     Ok(())
 }
 
-
-fn open_file(dir: &str) -> String{
-
+fn open_file(dir: &str) -> String {
     let contents = fs::read_to_string(dir).expect("Should have been able to read the file");
 
     contents
-
-}                           
-                                   //red     //green  //yellow
-fn compile_file(enviroment: &mut (Vec<Rect>,Vec<Rect>,Vec<Rect>),file:String){
-
+}
+//red     //green  //yellow
+fn compile_file(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>), file: String) {
     let mut skip = false;
     let mut yval = 0;
     let mut xval = 0;
 
-    for char in file.chars(){
-
-        if char == '\n'{
+    for char in file.chars() {
+        if char == '\n' {
             skip = false;
             xval = -1;
-            yval +=1;
+            yval += 1;
         }
 
-        if skip == false{
-            if char == '#'{// coment
+        if skip == false {
+            if char == '#' {
+                // coment
                 skip = true;
+            } else if char == '&' {
+                //red
+                enviroment.0.push(Rect::new(
+                    (xval as u32 * CUBE_SIZE) as i32,
+                    (yval * CUBE_SIZE) as i32,
+                    CUBE_SIZE,
+                    CUBE_SIZE,
+                ));
+            } else if char == '%' {
+                //green
+                enviroment.1.push(Rect::new(
+                    (xval as u32 * CUBE_SIZE) as i32,
+                    (yval * CUBE_SIZE) as i32,
+                    CUBE_SIZE,
+                    CUBE_SIZE,
+                ));
+            } else if char == '@' {
+                //yellow
+                enviroment.2.push(Rect::new(
+                    (xval as u32 * CUBE_SIZE) as i32,
+                    (yval * CUBE_SIZE) as i32,
+                    CUBE_SIZE,
+                    CUBE_SIZE,
+                ));
             }
-  
-            else if char == '&'{ //red
-                enviroment.0.push(Rect::new((xval as u32 *CUBE_SIZE)as i32, (yval*CUBE_SIZE)as i32, CUBE_SIZE, CUBE_SIZE));
-            }    
-            else if char == '%'{ //green
-                enviroment.1.push(Rect::new((xval as u32 *CUBE_SIZE)as i32, (yval*CUBE_SIZE)as i32, CUBE_SIZE, CUBE_SIZE));
-            }    
-            else if char == '@'{ //yellow
-                enviroment.2.push(Rect::new((xval as u32 *CUBE_SIZE)as i32, (yval*CUBE_SIZE)as i32, CUBE_SIZE, CUBE_SIZE));
-            }    
 
             xval += 1;
-            
-            
         }
-
-
-        
     }
 }
