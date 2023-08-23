@@ -83,7 +83,7 @@ pub fn main() -> Result<(), String> {
 
     // VAR DECLARES
     let mut fps_counter = FPSCounter::new();
-
+    let mut cameracanmove = true;
     let player_speed = 5;
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
@@ -141,11 +141,7 @@ pub fn main() -> Result<(), String> {
                 rect.x -= player_speed;
             }
         }
-        for rect in &mut enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut()) {
-            if rect.has_intersection(square) {
-                println!("intersected")
-            }
-        }
+
         // DRAW CODE BELOw
 
         //Set background
@@ -192,26 +188,28 @@ pub fn main() -> Result<(), String> {
     
 
 
-        let mut cameracanmove = true;
+        
+        println!("{}",cameracanmove);
         // LOGIC CODE BELOW
         if cameracanmove == true{
-        for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut())
-        {
-            if keys.w {
-                rect.y += player_speed;
-            }
-            if keys.s {
-                rect.y -= player_speed;
-            }
-            if keys.a {
-                rect.x += player_speed;
-            }
-            if keys.d {
-                rect.x -= player_speed;
-            }
-        
+            for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut())
+            {
+                if cameracanmove{
+                    if keys.w {
+                        rect.y += player_speed;
+                    }
+                    if keys.s {
+                        rect.y -= player_speed;
+                    }
+                    if keys.a {
+                        rect.x += player_speed;
+                    }
+                    if keys.d {
+                        rect.x -= player_speed;
+                    }
+                }
+            }   
         }
-    }
         for rect in &mut enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut()) {
             if rect.has_intersection(square) {
                 let x_overlap = if rect.x < square.x() {
@@ -225,22 +223,22 @@ pub fn main() -> Result<(), String> {
                     (rect.y + rect.height() as i32) - square.y()
                 } else {
                     rect.y - (square.y() + square.height() as i32)
-                    
+
                     
                 };
         
                 // Adjust rectangle's position based on the smaller overlap value
                 if x_overlap.abs() < y_overlap.abs() {
                     square.x += x_overlap;
-                    cameracanmove = false;
                 } else {
                     square.y += y_overlap;
-                    cameracanmove = true;
+                }
+                
 
                 }
             }
-            }
         }
+        
         // DRAW CODE BELOw
 
         //Set background
