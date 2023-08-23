@@ -4,10 +4,11 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
+use sdl2::video::Window;
+use std::collections::btree_map::Keys;
 use std::env;
 use std::fs;
 use std::time::{Duration, Instant};
-use sdl2::video::Window;
 const FPS: u32 = 60;
 
 const CAPTION: &str = "GAME";
@@ -83,8 +84,7 @@ pub fn main() -> Result<(), String> {
 
     // VAR DECLARES
     let mut fps_counter = FPSCounter::new();
-    let mut cameracanmove = true;
-    let player_speed = 5;
+    let player_speed = 10;
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
         ((SCREEN_HEIGHT / 2) - 50) as i32,
@@ -92,7 +92,7 @@ pub fn main() -> Result<(), String> {
         100,
     );
 
-    let check_in_frame_rect = Rect::new(0,0,SCREEN_WIDTH,SCREEN_HEIGHT);
+    let check_in_frame_rect = Rect::new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     // enviroment.0.push(Rect::new(12, 12, 100, 100))
     // enviroment.1.push(Rect::new(200, 200, 100, 100));
@@ -123,24 +123,7 @@ pub fn main() -> Result<(), String> {
             }
         }
 
-
-
         // LOGIC CODE BELOW
-        for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut())
-        {
-            if keys.w {
-                rect.y += player_speed;
-            }
-            if keys.s {
-                rect.y -= player_speed;
-            }
-            if keys.a {
-                rect.x += player_speed;
-            }
-            if keys.d {
-                rect.x -= player_speed;
-            }
-        }
 
         // DRAW CODE BELOw
 
@@ -153,96 +136,64 @@ pub fn main() -> Result<(), String> {
 
         for rect in &enviroment.0 {
             //YELLOW
-            if rect.has_intersection(check_in_frame_rect){
+            if rect.has_intersection(check_in_frame_rect) {
                 canvas.set_draw_color(Color::RGB(255, 255, 0));
                 canvas.fill_rect(*rect).unwrap();
             }
         }
         for rect in &enviroment.1 {
             //GREEN
-            if rect.has_intersection(check_in_frame_rect){
+            if rect.has_intersection(check_in_frame_rect) {
                 canvas.set_draw_color(Color::RGB(0, 255, 0));
                 canvas.fill_rect(*rect).unwrap();
             }
         }
         for rect in &enviroment.2 {
             //RED
-            if rect.has_intersection(check_in_frame_rect){
-            canvas.set_draw_color(Color::RGB(255, 0, 0));
-            canvas.fill_rect(*rect).unwrap();
+            if rect.has_intersection(check_in_frame_rect) {
+                canvas.set_draw_color(Color::RGB(255, 0, 0));
+                canvas.fill_rect(*rect).unwrap();
             }
         }
 
         canvas.set_draw_color(Color::RGB(0, 0, 255));
         canvas.fill_rect(square).unwrap();
 
-
         fps_counter.tick();
 
         let current_fps = fps_counter.get_current_fps();
         let new_title = format!("FPS: {} / {}", current_fps, FPS);
         canvas.window_mut().set_title(&new_title).unwrap();
-    
 
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
-    
 
-
-        
-        println!("{}",cameracanmove);
         // LOGIC CODE BELOW
-        if cameracanmove == true{
-            for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut())
-            {
-                if cameracanmove{
-                    if keys.w {
-                        rect.y += player_speed;
-                    }
-                    if keys.s {
-                        rect.y -= player_speed;
-                    }
-                    if keys.a {
-                        rect.x += player_speed;
-                    }
-                    if keys.d {
-                        rect.x -= player_speed;
-                    }
-                }
-            }   
+        
+
+        handle_movement(&keys, &player_speed, &mut enviroment);
+
+
+
+
+
+
+
+
+        for rect in &mut enviroment
+            .0
+            .iter_mut()
+            .chain(enviroment.1.iter_mut())
+            .chain(enviroment.2.iter_mut())
+        {
+
+            // Gets the rect's overlap value
         }
-        for rect in &mut enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut()) {
-            if rect.has_intersection(square) {
-                let x_overlap = if rect.x < square.x() {
-                    (rect.x + rect.width() as i32) - square.x()
-                    
-                } else {
-                    rect.x - (square.x() + square.width() as i32)
-                };
-        
-                let y_overlap = if rect.y < square.y() {
-                    (rect.y + rect.height() as i32) - square.y()
-                } else {
-                    rect.y - (square.y() + square.height() as i32)
+    }
 
-                    
-                };
-        
-                // Adjust rectangle's position based on the smaller overlap value
-                if x_overlap.abs() < y_overlap.abs() {
-                    square.x += x_overlap;
-                } else {
-                    square.y += y_overlap;
-                }
-                
+    // DRAW CODE BELOw
 
-                }
-            }
-        }
-        
-        // DRAW CODE BELOw
+    //Set background
 
-        //Set background
-        
     Ok(())
 }
 
@@ -296,4 +247,124 @@ fn compile_file(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>), file: String
             xval += 1;
         }
     }
+}
+
+fn handle_movement(keys: &KeyState, player_speed: &i32, enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>)){
+    let mut square = Rect::new(
+        ((SCREEN_WIDTH / 2) - 50) as i32,
+        ((SCREEN_HEIGHT / 2) - 50) as i32,
+        100,
+        100,
+    );
+
+
+    if keys.w {
+        let mut move_back = false;
+        square.y -= player_speed;
+        for rect in &mut enviroment
+            .0
+            .iter_mut()
+            .chain(enviroment.1.iter_mut())
+            .chain(enviroment.2.iter_mut())
+        {
+            if rect.has_intersection(square) {
+                move_back = true;
+            }
+        }
+        if move_back {
+            square.y += player_speed;
+        } else {
+            for rect in &mut enviroment
+                .0
+                .iter_mut()
+                .chain(enviroment.1.iter_mut())
+                .chain(enviroment.2.iter_mut())
+            {
+                rect.y += player_speed;
+            }
+        }
+    }
+
+    if keys.s {
+        let mut move_back = false;
+        square.y += player_speed;
+        for rect in &mut enviroment
+            .0
+            .iter_mut()
+            .chain(enviroment.1.iter_mut())
+            .chain(enviroment.2.iter_mut())
+        {
+            if rect.has_intersection(square) {
+                move_back = true;
+            }
+        }
+        if move_back {
+            square.y -= player_speed;
+        } else {
+            for rect in &mut enviroment
+                .0
+                .iter_mut()
+                .chain(enviroment.1.iter_mut())
+                .chain(enviroment.2.iter_mut())
+            {
+                rect.y -= player_speed;
+            }
+        }
+    }
+
+    if keys.a {
+        let mut move_back = false;
+        square.x -= player_speed;
+        for rect in &mut enviroment
+            .0
+            .iter_mut()
+            .chain(enviroment.1.iter_mut())
+            .chain(enviroment.2.iter_mut())
+        {
+            if rect.has_intersection(square) {
+                move_back = true;
+            }
+        }
+        if move_back {
+            square.x += player_speed;
+        } else {
+            for rect in &mut enviroment
+                .0
+                .iter_mut()
+                .chain(enviroment.1.iter_mut())
+                .chain(enviroment.2.iter_mut())
+            {
+                rect.x += player_speed;
+            }
+        }
+    }
+
+    if keys.d {
+        let mut move_back = false;
+        square.x += player_speed;
+        for rect in &mut enviroment
+            .0
+            .iter_mut()
+            .chain(enviroment.1.iter_mut())
+            .chain(enviroment.2.iter_mut())
+        {
+            if rect.has_intersection(square) {
+                move_back = true;
+            }
+        }
+        if move_back {
+            square.x -= player_speed;
+        } else {
+            for rect in &mut enviroment
+                .0
+                .iter_mut()
+                .chain(enviroment.1.iter_mut())
+                .chain(enviroment.2.iter_mut())
+            {
+                rect.x -= player_speed;
+            }
+        }
+    }
+
+
 }
