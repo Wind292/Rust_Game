@@ -89,14 +89,21 @@ pub fn main() -> Result<(), String> {
         }
         // LOGIC CODE BELOW
 
-        // for rect in &enviroment{
+        for rect in &mut enviroment{
 
-        //     if keys.w {
-        //         rect.y
-
-        //     }
-
-        // }
+            if keys.w {
+                rect.y += player_speed;
+            }
+            if keys.s {
+                rect.y -= player_speed;
+            }
+            if keys.a {
+                rect.y -= player_speed;
+            }
+            if keys.d {
+                rect.y += player_speed;
+            }
+        }
 
         
 
