@@ -58,7 +58,7 @@ pub fn main() -> Result<(), String> {
     let player_speed = 5;
     let mut square = Rect::new(((SCREEN_WIDTH/2)-50) as i32, ((SCREEN_HEIGHT/2)-50) as i32, 100, 100);
     
-    
+    enviroment.push((Rect::new(12, 12, 100, 100)));
 
 
     'running: loop {
