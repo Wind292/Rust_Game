@@ -194,6 +194,7 @@ pub fn main() -> Result<(), String> {
 
         let mut cameracanmove = true;
         // LOGIC CODE BELOW
+        if cameracanmove == true{
         for rect in enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut())
         {
             if keys.w {
@@ -210,10 +211,12 @@ pub fn main() -> Result<(), String> {
             }
         
         }
+    }
         for rect in &mut enviroment.0.iter_mut().chain(enviroment.1.iter_mut()).chain(enviroment.2.iter_mut()) {
             if rect.has_intersection(square) {
                 let x_overlap = if rect.x < square.x() {
                     (rect.x + rect.width() as i32) - square.x()
+                    
                 } else {
                     rect.x - (square.x() + square.width() as i32)
                 };
@@ -223,15 +226,16 @@ pub fn main() -> Result<(), String> {
                 } else {
                     rect.y - (square.y() + square.height() as i32)
                     
+                    
                 };
         
                 // Adjust rectangle's position based on the smaller overlap value
                 if x_overlap.abs() < y_overlap.abs() {
                     square.x += x_overlap;
-                    cameracanmove == false;
+                    cameracanmove = false;
                 } else {
                     square.y += y_overlap;
-                    cameracanmove == true;
+                    cameracanmove = true;
 
                 }
             }
