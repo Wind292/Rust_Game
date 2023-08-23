@@ -89,14 +89,14 @@ pub fn main() -> Result<(), String> {
         }
         // LOGIC CODE BELOW
 
-        for rect in &enviroment{
+        // for rect in &enviroment{
 
-            if keys.w {
-                rect.y
+        //     if keys.w {
+        //         rect.y
 
-            }
+        //     }
 
-        }
+        // }
 
         
 
