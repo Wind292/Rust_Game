@@ -167,7 +167,7 @@ fn main() -> Result<(), String> {
 }
 
 
-fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_frame: KeyState ,canvas: &mut Canvas<Window>,enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>)){
+fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_frame: KeyState ,canvas: &mut Canvas<Window>,enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>)){
     // for event in event_pump.poll_iter() {
     //     match event {
     //         Event::KeyDown { keycode, .. } => match keycode {
@@ -239,7 +239,7 @@ fn open_file(dir: &str) -> String {
     contents
 }
 //red     //green  //yellow
-fn load_map(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>), file: String) {
+fn load_map(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>), file: String) {
     let mut skip = false;
     let mut yval = 0;
     let mut xval = 0;
@@ -289,7 +289,7 @@ fn load_map(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>), file:
 fn handle_movement(
     keys: &KeyState,
     player_speed: &i32,
-    enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>),
+    environment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>),
 ) {
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
@@ -419,14 +419,7 @@ fn handle_movement(
  |_____/ \__\__,_|\__, |\___||___/ |_.__/ \___|_|\___/ \_/\_/ (_)
                    __/ |                                         
                   |___/                          
-*/
-fn NewDumbEnemy(enviornment: &mut(Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Enemy>,),keys: &mut KeyState){
-
-    
-        enviornment.4.push(Enemy { Speed: (12), GuyRec: (Rect::new(0, 0, 100, 100)) })
-    }
-
-    
+*/    
 
 
 
@@ -451,7 +444,7 @@ fn stage_testing(
     player_class: Class
 ) {
     
-    let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>) = (vec![], vec![], vec![], vec![]);
+    let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>) = (vec![], vec![], vec![], vec![], vec![]);
 
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
@@ -548,6 +541,15 @@ fn stage_testing(
                 canvas.fill_rect(*rect).unwrap();
             }
         }
+        for util in &enviroment.3 {
+            //RED
+            if util.RectObj.has_intersection(check_in_frame_rect) {
+                canvas.set_draw_color(Color::RGB(255, 0, 0));
+                canvas.fill_rect(util.RectObj).unwrap();
+            }
+        }
+
+
 
         canvas.set_draw_color(Color::RGB(0, 0, 255));
         canvas.fill_rect(square).unwrap();
