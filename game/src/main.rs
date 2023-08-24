@@ -169,6 +169,7 @@ fn main() -> Result<(), String> {
 
 fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_frame: KeyState ,canvas: &mut Canvas<Window>,enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>),util_count:&mut i32){
     println!("{:?}",util_count);
+    draw_string(util_count.to_string(), 20, canvas, (255,255,0), 0, 0);
     match player_class {
         Class::Archer => {
             if util_count > &mut 0{
