@@ -43,6 +43,7 @@ enum Class {
 
 #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
 enum Stage {
+    MainMenu,
     Testing,
     ChoosingClass,
     L1,
@@ -126,10 +127,22 @@ fn stage_testing(
     canvas: &mut Canvas<Window>,
     check_in_frame_rect: Rect,
     fps_counter: &mut FPSCounter,
+<<<<<<< Updated upstream
     player_class: Class
 ) {
     
     let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>) = (vec![], vec![], vec![], vec![]);
+=======
+) 
+
+
+
+
+
+
+{
+    let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>) = (vec![], vec![], vec![]);
+>>>>>>> Stashed changes
 
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
@@ -211,6 +224,14 @@ fn stage_testing(
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
     }
 }
+fn mainmenu(
+    event_pump: &mut EventPump,
+    keys: &mut KeyState,
+    player_speed: &i32,
+    canvas: &mut Canvas<Window>,
+    check_in_frame_rect: Rect,
+    fps_counter: &mut FPSCounter,
+) 
 
 fn manage_player_class(player_class: &Class,keys:KeyState,canvas: &mut Canvas<Window>){
 
@@ -224,6 +245,93 @@ fn manage_player_class(player_class: &Class,keys:KeyState,canvas: &mut Canvas<Wi
 
 
 
+}
+
+
+
+
+
+{
+    let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>) = (vec![], vec![], vec![]);
+
+    let mut square = Rect::new(
+        ((SCREEN_WIDTH / 2) - 50) as i32,
+        ((SCREEN_HEIGHT / 2) - 50) as i32,
+        100,
+        100,
+    );
+
+    load_map(&mut enviroment, open_file(MAP_DIRECTORY));
+
+    'running: loop {
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit { .. } => break 'running,
+                Event::KeyDown { keycode, .. } => match keycode {
+                    Some(Keycode::Escape) => break 'running,
+                    Some(Keycode::A) => keys.a = true,
+                    Some(Keycode::D) => keys.d = true,
+                    Some(Keycode::S) => keys.s = true,
+                    Some(Keycode::W) => keys.w = true,
+                    _ => {}
+                },
+                Event::KeyUp { keycode, .. } => match keycode {
+                    Some(Keycode::A) => keys.a = false,
+                    Some(Keycode::D) => keys.d = false,
+                    Some(Keycode::S) => keys.s = false,
+                    Some(Keycode::W) => keys.w = false,
+                    _ => {}
+                },
+                _ => {}
+            }
+        }
+
+        // LOGIC CODE BELOW
+
+        handle_movement(&keys, &player_speed, &mut enviroment); // handle movement and camera movement
+
+        // DRAW CODE BELOW
+
+        //Set background
+        canvas.set_draw_color(Color::RGB(100, 100, 100));
+        canvas.present();
+        canvas.clear();
+
+        //Draw other things
+
+        for rect in &enviroment.0 {
+            //YELLOW
+            if rect.has_intersection(check_in_frame_rect) {
+                canvas.set_draw_color(Color::RGB(255, 255, 0));
+                canvas.fill_rect(*rect).unwrap();
+            }
+        }
+        for rect in &enviroment.1 {
+            //GREEN
+            if rect.has_intersection(check_in_frame_rect) {
+                canvas.set_draw_color(Color::RGB(0, 255, 0));
+                canvas.fill_rect(*rect).unwrap();
+            }
+        }
+        for rect in &enviroment.2 {
+            //RED
+            if rect.has_intersection(check_in_frame_rect) {
+                canvas.set_draw_color(Color::RGB(255, 0, 0));
+                canvas.fill_rect(*rect).unwrap();
+            }
+        }
+
+        canvas.set_draw_color(Color::RGB(0, 0, 255));
+        canvas.fill_rect(square).unwrap();
+
+        fps_counter.tick();
+
+        let current_fps = fps_counter.get_current_fps();
+        let new_title = format!("FPS: {} / {}", current_fps, FPS);
+        canvas.window_mut().set_title(&new_title).unwrap();
+
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
+    }
 }
 
 fn open_file(dir: &str) -> String {
