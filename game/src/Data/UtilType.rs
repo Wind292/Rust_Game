@@ -1,4 +1,4 @@
 #[derive(PartialEq, Eq, Debug)]
-pub enum UtilType{
-    Arrow
+pub enum UtilType {
+    Arrow,
 }

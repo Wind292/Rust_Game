@@ -1,5 +1,3 @@
-
-
 pub struct KeyState {
     pub w: bool,
     pub s: bool,
@@ -8,5 +6,5 @@ pub struct KeyState {
     pub right: bool,
     pub up: bool,
     pub left: bool,
-    pub down: bool
+    pub down: bool,
 }

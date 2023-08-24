@@ -1,8 +1,7 @@
-
-use sdl2::rect::Rect;
 use crate::Data::Direction::Direction;
 use crate::Data::UtilType::UtilType;
-pub struct UtilEntity{
+use sdl2::rect::Rect;
+pub struct UtilEntity {
     pub RectObj: Rect,
     pub Dir: Direction,
     pub Type: UtilType,
