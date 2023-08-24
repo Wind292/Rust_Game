@@ -4,7 +4,9 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
+use sdl2::render::Canvas;
 use sdl2::video::Window;
+use sdl2::EventPump;
 use std::collections::btree_map::Keys;
 use std::env;
 use std::fs;
@@ -39,10 +41,14 @@ enum Class {
     Tank,
 }
 
-enum Stage{
+enum Stage {
     Testing,
     ChoosingClass,
-    L1,L2,L3,L4,L5   
+    L1,
+    L2,
+    L3,
+    L4,
+    L5,
 }
 
 impl FPSCounter {
@@ -72,7 +78,6 @@ impl FPSCounter {
 pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
-
     let mut window = video_subsystem
         .window(CAPTION, SCREEN_WIDTH, SCREEN_HEIGHT)
         .position_centered()
@@ -83,6 +88,8 @@ pub fn main() -> Result<(), String> {
     let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
     let mut event_pump = sdl_context.event_pump()?;
 
+
+    // constant vars through stages
     // keys
     let mut keys = KeyState {
         w: false,
@@ -91,20 +98,42 @@ pub fn main() -> Result<(), String> {
         d: false,
     };
 
-    // Vectors for enviroment
+    let check_in_frame_rect = Rect::new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    let mut fps_counter = FPSCounter::new();
+    let player_speed = 10;
+
+    let mut current_stage = Stage::Testing;
+
+
+    match current_stage {
+
+        Stage::Testing => stage_testing(&mut event_pump, &mut keys, &player_speed, &mut canvas, check_in_frame_rect, &mut fps_counter),
+
+        _=>{}
+    }
+
+
+
+
+    Ok(())
+}
+
+fn stage_testing(
+    event_pump: &mut EventPump,
+    keys: &mut KeyState,
+    player_speed: &i32,
+    canvas: &mut Canvas<Window>,
+    check_in_frame_rect: Rect,
+    fps_counter: &mut FPSCounter,
+) {
     let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>) = (vec![], vec![], vec![]);
 
-    // VAR DECLARES
-    let mut fps_counter = FPSCounter::new();
-    let player_speed = 50;
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
         ((SCREEN_HEIGHT / 2) - 50) as i32,
         100,
         100,
     );
-
-    let check_in_frame_rect = Rect::new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     load_map(&mut enviroment, open_file(MAP_DIRECTORY));
 
@@ -134,7 +163,6 @@ pub fn main() -> Result<(), String> {
         // LOGIC CODE BELOW
 
         handle_movement(&keys, &player_speed, &mut enviroment); // handle movement and camera movement
-
 
         // DRAW CODE BELOW
 
@@ -177,31 +205,8 @@ pub fn main() -> Result<(), String> {
         canvas.window_mut().set_title(&new_title).unwrap();
 
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
-
-        
-
-    
-
-            
-        
     }
-
-
-    Ok(())
 }
-
-fn stage_testing(){
-
-    // Load entire blank main
-
-}
-
-
-
-
-
-
-
 
 
 fn open_file(dir: &str) -> String {
@@ -260,7 +265,7 @@ fn handle_movement(
     keys: &KeyState,
     player_speed: &i32,
     enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>),
-    ) {
+) {
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
         ((SCREEN_HEIGHT / 2) - 50) as i32,
