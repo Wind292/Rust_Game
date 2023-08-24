@@ -16,6 +16,10 @@ use crate::Data::DumbEnemy::Enemy;
 use crate::Data::FPSCounter::FPSCounter;
 use crate::Data::KeyState::KeyState;
 use crate::Data::UtilEntity::UtilEntity;
+use crate::Data::Stage::Stage;
+use crate::Data::Direction::Direction;
+use crate::Data::UtilType::UtilType;
+use crate::Data::Class::Class;
 const FPS: u32 = 60;
 const CAPTION: &str = "GAME";
 const SCREEN_WIDTH: u32 = 800;
@@ -23,31 +27,10 @@ const SCREEN_HEIGHT: u32 = 600;
 const MAP_DIRECTORY: &str = "maps/testlevel.mp"; // can have a file extention of anything
 const CUBE_SIZE: u32 = 100;
 //FPS COUNTER STUFF
-#[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
-enum Class {
-    Archer,
-    Swordsman,
-    Mage,
-    Tank,
-}
-#[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
-enum Stage {
-    Testing,
-    ChoosingClass,
-    L1,
-    L2,
-    L3,
-    L4,
-    L5,
-}
-#[derive(PartialEq, Eq, Debug)]
-pub enum Direction {
-    Up,Down,Left,Right
-}
-#[derive(PartialEq, Eq, Debug)]
-pub enum UtilType{
-    Arrow
-}
+
+
+
+
 impl FPSCounter {
     fn new() -> Self {
         FPSCounter {
