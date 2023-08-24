@@ -1,5 +1,5 @@
 extern crate sdl2;
-
+mod Data;
 use sdl2::event;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -12,37 +12,17 @@ use std::collections::btree_map::Keys;
 use std::env;
 use std::fs;
 use std::time::{Duration, Instant};
-
-
-
+use crate::Data::DumbEnemy::Enemy;
+use crate::Data::FPSCounter::FPSCounter;
+use crate::Data::KeyState::KeyState;
+use crate::Data::UtilEntity::UtilEntity;
 const FPS: u32 = 60;
 const CAPTION: &str = "GAME";
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 600;
 const MAP_DIRECTORY: &str = "maps/testlevel.mp"; // can have a file extention of anything
-
 const CUBE_SIZE: u32 = 100;
-
-struct KeyState {
-    w: bool,
-    s: bool,
-    a: bool,
-    d: bool,
-    right: bool,
-    up: bool,
-    left: bool,
-    down: bool
-}
 //FPS COUNTER STUFF
-struct FPSCounter {
-    frame_count: u32,
-    last_update: Instant,
-    current_fps: u32,
-}
-struct Enemy{
-    Speed:i32 ,
-    GuyRec: Rect
-}
 #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
 enum Class {
     Archer,
@@ -50,7 +30,6 @@ enum Class {
     Mage,
     Tank,
 }
-
 #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
 enum Stage {
     Testing,
@@ -62,25 +41,13 @@ enum Stage {
     L5,
 }
 #[derive(PartialEq, Eq, Debug)]
-enum Direction {
+pub enum Direction {
     Up,Down,Left,Right
 }
 #[derive(PartialEq, Eq, Debug)]
-enum UtilType{
+pub enum UtilType{
     Arrow
 }
-#[derive(PartialEq, Eq, Debug)]
-struct UtilEntity{
-    RectObj: Rect,
-    Dir: Direction,
-    Type: UtilType,
-    Speed: i32,
-    Damage: i32,
-    Health: i32,
-}
-
-
-
 impl FPSCounter {
     fn new() -> Self {
         FPSCounter {
