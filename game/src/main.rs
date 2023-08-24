@@ -20,7 +20,6 @@ const MAP_DIRECTORY: &str = "maps/testlevel.mp"; // can have a file extention of
 
 const CUBE_SIZE: u32 = 100;
 
-// #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
 struct KeyState {
     w: bool,
     s: bool,
@@ -34,6 +33,7 @@ struct FPSCounter {
     current_fps: u32,
 }
 
+#[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
 enum Class {
     Archer,
     Swordsman,
@@ -41,6 +41,7 @@ enum Class {
     Tank,
 }
 
+#[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
 enum Stage {
     Testing,
     ChoosingClass,
@@ -101,13 +102,13 @@ pub fn main() -> Result<(), String> {
     let check_in_frame_rect = Rect::new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     let mut fps_counter = FPSCounter::new();
     let player_speed = 10;
-
+    let player_class = Class::Archer;
     let mut current_stage = Stage::Testing;
 
 
     match current_stage {
 
-        Stage::Testing => stage_testing(&mut event_pump, &mut keys, &player_speed, &mut canvas, check_in_frame_rect, &mut fps_counter),
+        Stage::Testing => stage_testing(&mut event_pump, &mut keys, &player_speed, &mut canvas, check_in_frame_rect, &mut fps_counter,player_class),
 
         _=>{}
     }
@@ -125,8 +126,10 @@ fn stage_testing(
     canvas: &mut Canvas<Window>,
     check_in_frame_rect: Rect,
     fps_counter: &mut FPSCounter,
+    player_class: Class
 ) {
-    let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>) = (vec![], vec![], vec![]);
+    
+    let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>) = (vec![], vec![], vec![], vec![]);
 
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
@@ -164,6 +167,7 @@ fn stage_testing(
 
         handle_movement(&keys, &player_speed, &mut enviroment); // handle movement and camera movement
 
+        manage_player_class(&player_class, *keys, canvas);
         // DRAW CODE BELOW
 
         //Set background
@@ -208,13 +212,26 @@ fn stage_testing(
     }
 }
 
+fn manage_player_class(player_class: &Class,keys:KeyState,canvas: &mut Canvas<Window>){
+
+    match player_class {
+        Class::Archer =>
+        _=>{}
+    }
+    
+
+    
+
+
+
+}
 
 fn open_file(dir: &str) -> String {
     let contents = fs::read_to_string(dir).expect("Should have been able to read the file");
     contents
 }
 //red     //green  //yellow
-fn load_map(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>), file: String) {
+fn load_map(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>), file: String) {
     let mut skip = false;
     let mut yval = 0;
     let mut xval = 0;
@@ -264,7 +281,7 @@ fn load_map(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>), file: String) {
 fn handle_movement(
     keys: &KeyState,
     player_speed: &i32,
-    enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>),
+    enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>),
 ) {
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
