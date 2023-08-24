@@ -9,10 +9,9 @@ use std::collections::btree_map::Keys;
 use std::env;
 use std::fs;
 use std::time::{Duration, Instant};
+
 const FPS: u32 = 60;
-
 const CAPTION: &str = "GAME";
-
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 600;
 const MAP_DIRECTORY: &str = "maps/testlevel.mp"; // can have a file extention of anything
@@ -30,7 +29,20 @@ struct KeyState {
 struct FPSCounter {
     frame_count: u32,
     last_update: Instant,
-    current_fps: u32, // Add this field
+    current_fps: u32,
+}
+
+enum Class {
+    Archer,
+    Swordsman,
+    Mage,
+    Tank,
+}
+
+enum Stage{
+    Testing,
+    ChoosingClass,
+    L1,L2,L3,L4,L5   
 }
 
 impl FPSCounter {
@@ -84,7 +96,7 @@ pub fn main() -> Result<(), String> {
 
     // VAR DECLARES
     let mut fps_counter = FPSCounter::new();
-    let player_speed = 10;
+    let player_speed = 50;
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
         ((SCREEN_HEIGHT / 2) - 50) as i32,
@@ -94,11 +106,7 @@ pub fn main() -> Result<(), String> {
 
     let check_in_frame_rect = Rect::new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    // enviroment.0.push(Rect::new(12, 12, 100, 100))
-    // enviroment.1.push(Rect::new(200, 200, 100, 100));
-    // enviroment.2.push(Rect::new(100, 100, 100, 100));
-
-    compile_file(&mut enviroment, open_file(MAP_DIRECTORY));
+    load_map(&mut enviroment, open_file(MAP_DIRECTORY));
 
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -125,7 +133,10 @@ pub fn main() -> Result<(), String> {
 
         // LOGIC CODE BELOW
 
-        // DRAW CODE BELOw
+        handle_movement(&keys, &player_speed, &mut enviroment); // handle movement and camera movement
+
+
+        // DRAW CODE BELOW
 
         //Set background
         canvas.set_draw_color(Color::RGB(100, 100, 100));
@@ -167,42 +178,38 @@ pub fn main() -> Result<(), String> {
 
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
 
-        // LOGIC CODE BELOW
         
 
-        handle_movement(&keys, &player_speed, &mut enviroment);
+    
 
-
-
-
-
-
-
-
-        for rect in &mut enviroment
-            .0
-            .iter_mut()
-            .chain(enviroment.1.iter_mut())
-            .chain(enviroment.2.iter_mut())
-        {
-
-            // Gets the rect's overlap value
-        }
+            
+        
     }
 
-    // DRAW CODE BELOw
-
-    //Set background
 
     Ok(())
 }
+
+fn stage_testing(){
+
+    // Load entire blank main
+
+}
+
+
+
+
+
+
+
+
 
 fn open_file(dir: &str) -> String {
     let contents = fs::read_to_string(dir).expect("Should have been able to read the file");
     contents
 }
 //red     //green  //yellow
-fn compile_file(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>), file: String) {
+fn load_map(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>), file: String) {
     let mut skip = false;
     let mut yval = 0;
     let mut xval = 0;
@@ -249,14 +256,17 @@ fn compile_file(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>), file: String
     }
 }
 
-fn handle_movement(keys: &KeyState, player_speed: &i32, enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>)){
+fn handle_movement(
+    keys: &KeyState,
+    player_speed: &i32,
+    enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>),
+    ) {
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
         ((SCREEN_HEIGHT / 2) - 50) as i32,
         100,
         100,
     );
-
 
     if keys.w {
         let mut move_back = false;
@@ -365,6 +375,4 @@ fn handle_movement(keys: &KeyState, player_speed: &i32, enviroment: &mut (Vec<Re
             }
         }
     }
-
-
 }
