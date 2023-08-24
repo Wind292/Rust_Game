@@ -76,7 +76,7 @@ impl FPSCounter {
     }
 }
 
-pub fn main() -> Result<(), String> {
+ fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     let mut window = video_subsystem
