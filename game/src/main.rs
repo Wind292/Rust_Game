@@ -249,7 +249,7 @@ fn mainmenu(
 
       
 
-        manage_player_class(&player_class, *keys, canvas);
+        manage_player_class(&player_class, keys, canvas);
         // DRAW CODE BELOW
 
         //Set background
