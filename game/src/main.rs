@@ -32,7 +32,10 @@ struct FPSCounter {
     last_update: Instant,
     current_fps: u32,
 }
-
+struct Enemy{
+    Speed:i32 ,
+    GuyRec: Rect
+}
 #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
 enum Class {
     Archer,
@@ -201,7 +204,7 @@ fn open_file(dir: &str) -> String {
     contents
 }
 //red     //green  //yellow
-fn load_map(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>), file: String) {
+fn load_map(enviroment: &mut (Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Enemy>,), file: String) {
     let mut skip = false;
     let mut yval = 0;
     let mut xval = 0;
@@ -251,7 +254,7 @@ fn load_map(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>), file:
 fn handle_movement(
     keys: &KeyState,
     player_speed: &i32,
-    enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>),
+    enviroment: &mut (Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Enemy>,),
 ) {
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
@@ -379,6 +382,25 @@ fn handle_movement(
                    __/ |                                         
                   |___/                          
 */
+fn NewDumbEnemy(enviornment: &mut(Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Enemy>,),keys: &mut KeyState){
+
+    
+        enviornment.4.push(Enemy { Speed: (12), GuyRec: (Rect::new(0, 0, 100, 100)) })
+    }
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
 
 
 fn stage_testing(
@@ -391,7 +413,7 @@ fn stage_testing(
     player_class: Class
 ) {
     
-    let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<Rect>) = (vec![], vec![], vec![], vec![]);
+    let mut enviroment: (Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Enemy>,) = (vec![], vec![], vec![], vec![],vec![]);
 
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
@@ -460,7 +482,13 @@ fn stage_testing(
                 canvas.fill_rect(*rect).unwrap();
             }
         }
-
+        for rect in &enviroment.4 {
+            //RED
+            if rect.GuyRec.has_intersection(check_in_frame_rect) {
+                canvas.set_draw_color(Color::RGB(255, 0, 0));
+                canvas.fill_rect(rect.GuyRec).unwrap();
+            }
+        }
         canvas.set_draw_color(Color::RGB(0, 0, 255));
         canvas.fill_rect(square).unwrap();
 
