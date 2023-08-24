@@ -45,7 +45,7 @@ impl FPSCounter {
     fn tick(&mut self) {
         self.frame_count += 1;
         let now = Instant::now();
-        if now.duration_since(self.last_update) >= Duration::from_secs(1) {
+        if now.duration_since(self.last_update) >= Duration::from_secs(1) {//fps counter code
             self.current_fps = self.frame_count;
             self.frame_count = 0;
             self.last_update = now;
@@ -104,7 +104,7 @@ pub fn main() -> Result<(), String> {
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => break 'running,
-                Event::KeyDown { keycode, .. } => match keycode {
+                Event::KeyDown { keycode, .. } => match keycode {//handle key presses for movement binds
                     Some(Keycode::Escape) => break 'running,
                     Some(Keycode::A) => keys.a = true,
                     Some(Keycode::D) => keys.d = true,
@@ -128,29 +128,31 @@ pub fn main() -> Result<(), String> {
         // DRAW CODE BELOw
 
         //Set background
-        canvas.set_draw_color(Color::RGB(100, 100, 100));
+        canvas.set_draw_color(Color::RGB(100, 100, 100));//background
         canvas.present();
         canvas.clear();
 
         //Draw other things
 
+
+        
         for rect in &enviroment.0 {
             //YELLOW
-            if rect.has_intersection(check_in_frame_rect) {
+            if rect.has_intersection(check_in_frame_rect) {//out of frame rect removal
                 canvas.set_draw_color(Color::RGB(255, 255, 0));
                 canvas.fill_rect(*rect).unwrap();
             }
         }
         for rect in &enviroment.1 {
             //GREEN
-            if rect.has_intersection(check_in_frame_rect) {
+            if rect.has_intersection(check_in_frame_rect) {//out of frame rect removal
                 canvas.set_draw_color(Color::RGB(0, 255, 0));
                 canvas.fill_rect(*rect).unwrap();
             }
         }
         for rect in &enviroment.2 {
             //RED
-            if rect.has_intersection(check_in_frame_rect) {
+            if rect.has_intersection(check_in_frame_rect) {//out of frame rect removal
                 canvas.set_draw_color(Color::RGB(255, 0, 0));
                 canvas.fill_rect(*rect).unwrap();
             }
@@ -168,16 +170,8 @@ pub fn main() -> Result<(), String> {
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
 
         // LOGIC CODE BELOW
-        
 
         handle_movement(&keys, &player_speed, &mut enviroment);
-
-
-
-
-
-
-
 
         for rect in &mut enviroment
             .0
@@ -198,7 +192,7 @@ pub fn main() -> Result<(), String> {
 }
 
 fn open_file(dir: &str) -> String {
-    let contents = fs::read_to_string(dir).expect("Should have been able to read the file");
+    let contents = fs::read_to_string(dir).expect("Should have been able to read the file");//map stuff
     contents
 }
 //red     //green  //yellow
@@ -249,14 +243,17 @@ fn compile_file(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>), file: String
     }
 }
 
-fn handle_movement(keys: &KeyState, player_speed: &i32, enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>)){
+fn handle_movement(
+    keys: &KeyState,
+    player_speed: &i32,
+    enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>),
+) {
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
         ((SCREEN_HEIGHT / 2) - 50) as i32,
         100,
         100,
     );
-
 
     if keys.w {
         let mut move_back = false;
@@ -365,6 +362,4 @@ fn handle_movement(keys: &KeyState, player_speed: &i32, enviroment: &mut (Vec<Re
             }
         }
     }
-
-
 }
