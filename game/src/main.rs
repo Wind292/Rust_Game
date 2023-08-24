@@ -167,38 +167,60 @@ fn main() -> Result<(), String> {
 }
 
 
-fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_frame: KeyState ,canvas: &mut Canvas<Window>,enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>)){
-    // for event in event_pump.poll_iter() {
-    //     match event {
-    //         Event::KeyDown { keycode, .. } => match keycode {
-    //         }
-    //     }
-    
-    
-    
-    println!("{:?}",enviroment.3);
+fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_frame: KeyState ,canvas: &mut Canvas<Window>,enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>),util_count:&mut i32){
+    println!("{:?}",util_count);
+    draw_string(util_count.to_string(), 20, canvas, (255,255,0), 0, 0);
     match player_class {
         Class::Archer => {
-            if key_pressed_at_frame.up{
-                enviroment.3.push(UtilEntity{
-                    RectObj:Rect::new((SCREEN_WIDTH/2) as i32, (SCREEN_HEIGHT/2) as i32, 10, 30),
-                    Damage: 0,
-                    Dir: Direction::Up,
-                    Type: UtilType::Arrow,
-                    Speed: -25,
-                    Health: 1,
-                });
+            if util_count > &mut 0{
+                if key_pressed_at_frame.up{
+                    enviroment.3.push(UtilEntity{
+                        RectObj:Rect::new((SCREEN_WIDTH/2) as i32, (SCREEN_HEIGHT/2) as i32, 10, 30),
+                        Damage: 0,
+                        Dir: Direction::Up,
+                        Type: UtilType::Arrow,
+                        Speed: -25,
+                        Health: 1,
+                    });
+                    *util_count -= 1;
+                }
+                else if key_pressed_at_frame.down{
+                    enviroment.3.push(UtilEntity{
+                        RectObj:Rect::new((SCREEN_WIDTH/2) as i32, (SCREEN_HEIGHT/2) as i32, 10, 30),
+                        Damage: 0,
+                        Dir: Direction::Down,
+                        Type: UtilType::Arrow,
+                        Speed: 25,
+                        Health: 1,
+                    });
+                    *util_count -= 1;
+                }  
+                else if key_pressed_at_frame.left{
+                    enviroment.3.push(UtilEntity{
+                        RectObj:Rect::new((SCREEN_WIDTH/2) as i32, (SCREEN_HEIGHT/2) as i32, 30, 10),
+                        Damage: 0,
+                        Dir: Direction::Left,
+                        Type: UtilType::Arrow,
+                        Speed: -25,
+                        Health: 1,
+                    });
+                    *util_count -= 1;
+                }
+                else if key_pressed_at_frame.right{
+                    enviroment.3.push(UtilEntity{
+                        RectObj:Rect::new((SCREEN_WIDTH/2) as i32, (SCREEN_HEIGHT/2) as i32, 30, 10),
+                        Damage: 0,
+                        Dir: Direction::Right,
+                        Type: UtilType::Arrow,
+                        Speed: 25,
+                        Health: 1,
+                    });
+                    *util_count -= 1;
+                }  
             }
-            if key_pressed_at_frame.down{
-                enviroment.3.push(UtilEntity{
-                    RectObj:Rect::new((SCREEN_WIDTH/2) as i32, (SCREEN_HEIGHT/2) as i32, 10, 30),
-                    Damage: 0,
-                    Dir: Direction::Down,
-                    Type: UtilType::Arrow,
-                    Speed: 25,
-                    Health: 1,
-                });
-            }  
+
+
+
         }, _=>{}
     
     }
@@ -213,13 +235,14 @@ fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_fram
                         Direction::Down | Direction::Up => {
                             util.RectObj.y += util.Speed;
                             if util.RectObj.y > (SCREEN_HEIGHT * 2) as i32 || util.RectObj.y < -((SCREEN_HEIGHT * 2) as i32){
-                                println!("added top remove");
                                 elements_to_remove.push(index); // Mark for removal
                             }
                         },
                         Direction::Left | Direction::Right => {
-
-                            util.RectObj.x += util.Speed
+                            util.RectObj.x += util.Speed;
+                            if util.RectObj.x > (SCREEN_WIDTH * 2) as i32 || util.RectObj.x < -((SCREEN_WIDTH * 2) as i32){
+                                elements_to_remove.push(index); // Mark for removal
+                            }
                         },
                     _ => {}
                     }    
@@ -444,6 +467,8 @@ fn stage_testing(
     player_class: Class
 ) {
     
+    let mut util_count = 10; 
+
     let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>) = (vec![], vec![], vec![], vec![], vec![]);
 
     let mut square = Rect::new(
@@ -510,7 +535,7 @@ fn stage_testing(
 
         handle_movement(&keys, &player_speed, &mut enviroment); // handle movement and camera movement
 
-        manage_player_class(&player_class, keys, keys_pressed_at_frame, canvas,&mut enviroment);
+        manage_player_class(&player_class, keys, keys_pressed_at_frame, canvas,&mut enviroment, &mut util_count);
         // DRAW CODE BELOW
 
         //Set background
@@ -562,4 +587,154 @@ fn stage_testing(
 
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
     }
+}
+
+
+
+fn draw_string(
+    number: String,
+    size: u32,
+    canvas: &mut Canvas<Window>,
+    rgb: (u8, u8, u8),
+    x: i32,
+    y: i32,
+) {
+    let char1 = String::from(
+        "
+    01100
+    00100
+    00100
+    00100
+    01110",
+    );
+    let char2 = String::from(
+        "
+    01100
+    00010
+    00100
+    01000
+    01110",
+    );
+    let char3 = String::from(
+        "
+    01100
+    00010
+    01100
+    00010
+    01100",
+    );
+    let char4 = String::from(
+        "
+    01010
+    01010
+    01110
+    00010
+    00010",
+    );
+    let char5 = String::from(
+        "
+    01110
+    01000
+    00100
+    00010
+    01110",
+    );
+    let char6 = String::from(
+        "
+    01110
+    01000
+    01110
+    01010
+    01110",
+    );
+    let char7 = String::from(
+        "
+    01110
+    00010
+    00100
+    00100
+    01000",
+    );
+    let char8 = String::from(
+        "
+    01110
+    01010
+    00100
+    01010
+    01110",
+    );
+    let char9 = String::from(
+        "
+    01110
+    01010
+    01110
+    00010
+    00010",
+    );
+    let char0 = String::from(
+        "
+    01110
+    01010
+    01010
+    01010
+    01110",
+    );
+    let charspc = String::from(
+        "
+    00000
+    00000
+    00000
+    00000
+    00000",
+    );
+
+    canvas.set_draw_color(Color::RGB(rgb.0, rgb.1, rgb.2));
+    let mut string_location: u32 = 0;
+    for input_char in number.chars() {
+        match input_char {
+            '1' => draw_char(input_char, canvas, size, &string_location, &char1, x, y),
+            '2' => draw_char(input_char, canvas, size, &string_location, &char2, x, y),
+            '3' => draw_char(input_char, canvas, size, &string_location, &char3, x, y),
+            '4' => draw_char(input_char, canvas, size, &string_location, &char4, x, y),
+            '5' => draw_char(input_char, canvas, size, &string_location, &char5, x, y),
+            '6' => draw_char(input_char, canvas, size, &string_location, &char6, x, y),
+            '7' => draw_char(input_char, canvas, size, &string_location, &char7, x, y),
+            '8' => draw_char(input_char, canvas, size, &string_location, &char8, x, y),
+            '9' => draw_char(input_char, canvas, size, &string_location, &char9, x, y),
+            '0' => draw_char(input_char, canvas, size, &string_location, &char0, x, y),
+
+            ' ' => draw_char(input_char, canvas, size, &string_location, &charspc, x, y),
+            _ => {}
+        }
+
+        string_location += 1;
+    }
+}
+fn draw_char(
+    _c: char,
+    canvas: &mut Canvas<Window>,
+    size: u32,
+    string_location: &u32,
+    charbit: &String,
+    x: i32,
+    y: i32,
+) {
+    let mut pos = 0;
+    for bit in charbit.chars() {
+        if bit == '1' {
+            canvas
+                .fill_rect(rect_on_5x5_grid(pos, size, *string_location, x, y))
+                .unwrap();
+        }
+        pos += 1;
+    }
+}
+
+fn rect_on_5x5_grid(number: i32, size: u32, string_location: u32, x: i32, y: i32) -> Rect {
+    Rect::new(
+        ((number % 5) * size as i32) + (string_location * size * 4) as i32 + x,
+        (number / 5) * (size / 2) as i32 + y,
+        size,
+        size,
+    )
 }
