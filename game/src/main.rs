@@ -168,7 +168,15 @@ fn main() -> Result<(), String> {
 
 
 fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_frame: KeyState ,canvas: &mut Canvas<Window>,enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>),util_count:&mut i32){
-    println!("{:?}",util_count);
+    let square = Rect::new(
+        ((SCREEN_WIDTH / 2) - 50) as i32,
+        ((SCREEN_HEIGHT / 2) - 50) as i32,
+        100,
+        100,
+    );
+
+
+
     draw_string(util_count.to_string(), 20, canvas, (255,255,0), 0, 0);
     match player_class {
         Class::Archer => {
@@ -246,6 +254,17 @@ fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_fram
                         },
                     _ => {}
                     }    
+                }
+                for rect in enviroment.0.iter_mut()
+                .chain(enviroment.1.iter_mut())
+                .chain(enviroment.2.iter_mut()){
+                    if util.RectObj.has_intersection(*rect){
+                        util.Health = 0;
+                    }
+                }
+                if util.Health == 0 && util.RectObj.has_intersection(square){
+                    *util_count += 1;
+                    elements_to_remove.push(index);
                 }
             }
         }
@@ -327,7 +346,6 @@ fn handle_movement(
         for rect in environment.0.iter_mut()
         .chain(environment.1.iter_mut())
         .chain(environment.2.iter_mut())
-        .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
     
         {
             if rect.has_intersection(square) {
@@ -354,7 +372,6 @@ fn handle_movement(
         for rect in environment.0.iter_mut()
         .chain(environment.1.iter_mut())
         .chain(environment.2.iter_mut())
-        .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
     
         {
             if rect.has_intersection(square) {
@@ -381,7 +398,6 @@ fn handle_movement(
         for rect in environment.0.iter_mut()
         .chain(environment.1.iter_mut())
         .chain(environment.2.iter_mut())
-        .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
     
         {
             if rect.has_intersection(square) {
@@ -408,7 +424,6 @@ fn handle_movement(
         for rect in environment.0.iter_mut()
         .chain(environment.1.iter_mut())
         .chain(environment.2.iter_mut())
-        .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
     
         {
             if rect.has_intersection(square) {
@@ -467,7 +482,7 @@ fn stage_testing(
     player_class: Class
 ) {
     
-    let mut util_count = 10; 
+    let mut util_count = 1000; 
 
     let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>) = (vec![], vec![], vec![], vec![], vec![]);
 
@@ -534,7 +549,7 @@ fn stage_testing(
         // LOGIC CODE BELOW
 
         handle_movement(&keys, &player_speed, &mut enviroment); // handle movement and camera movement
-
+        // println!("hello");
         manage_player_class(&player_class, keys, keys_pressed_at_frame, canvas,&mut enviroment, &mut util_count);
         // DRAW CODE BELOW
 
@@ -635,7 +650,7 @@ fn draw_string(
         "
     01110
     01000
-    00100
+    01100
     00010
     01110",
     );
