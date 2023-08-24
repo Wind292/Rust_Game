@@ -167,7 +167,7 @@ fn stage_testing(
 
         handle_movement(&keys, &player_speed, &mut enviroment); // handle movement and camera movement
 
-        manage_player_class(&player_class, *keys, canvas);
+        manage_player_class(&player_class, keys, canvas);
         // DRAW CODE BELOW
 
         //Set background
@@ -270,10 +270,13 @@ fn mainmenu(
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
     }
 }
-fn manage_player_class(player_class: &Class,keys:KeyState,canvas: &mut Canvas<Window>){
+
+fn manage_player_class(player_class: &Class,keys:&KeyState,canvas: &mut Canvas<Window>){
 
     match player_class {
-        Class::Archer =>
+        Class::Archer => {
+
+        }
         _=>{}
     }
     
