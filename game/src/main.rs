@@ -79,7 +79,7 @@ impl FPSCounter {
     }
 }
 
-fn main() -> Result<(), String> {
+fn main( ) -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     let mut window = video_subsystem
@@ -107,8 +107,8 @@ fn main() -> Result<(), String> {
     let player_speed = 10;
     let player_class = Class::Archer;
     let mut current_stage = Stage::Testing;
-
-
+    
+    
     match current_stage {
 
         Stage::Testing => stage_testing(&mut event_pump, &mut keys, &player_speed, &mut canvas, check_in_frame_rect, &mut fps_counter,player_class),
@@ -138,6 +138,7 @@ fn mainmenu(
 
     let mut event_pump = sdl_context.event_pump().unwrap();
     'running: loop {
+       
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
@@ -182,6 +183,28 @@ fn mainmenu(
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
     }
 }
+fn DumbEnemyNav(enviroment: &mut (Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Enemy>, ),canvas: &mut Canvas<Window>,check_in_frame_rect: Rect,){
+    
+        for rect in &mut enviroment.4 {
+            //RED
+            if rect.GuyRec.has_intersection(check_in_frame_rect) {
+                if rect.GuyRec.x <  ((SCREEN_WIDTH / 2) - 50) as i32{
+                        rect.GuyRec.x += rect.Speed;
+                }
+            }
+        }
+        'running: loop {
+       
+            for rect in &mut enviroment.4 {
+            //RED
+            if rect.GuyRec.has_intersection(check_in_frame_rect) {
+                if rect.GuyRec.x <  ((SCREEN_WIDTH / 2) - 50) as i32{
+                        rect.GuyRec.x += rect.Speed;
+                }
+            }
+        }
+    }
+}
 
 fn manage_player_class(player_class: &Class,keys:&KeyState,canvas: &mut Canvas<Window>){
 
@@ -204,7 +227,7 @@ fn open_file(dir: &str) -> String {
     contents
 }
 //red     //green  //yellow
-fn load_map(enviroment: &mut (Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Enemy>,), file: String) {
+fn load_map(enviroment: &mut (Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Enemy>, ), file: String) {
     let mut skip = false;
     let mut yval = 0;
     let mut xval = 0;
@@ -245,6 +268,10 @@ fn load_map(enviroment: &mut (Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Enemy>
                     CUBE_SIZE,
                 ));
             }
+            else if  char == '^' {
+                //Dumb enemy
+                enviroment.4.push(Enemy { Speed: (12), GuyRec: (Rect::new(0, 0, 100, 100)) })
+            }
 
             xval += 1;
         }
@@ -284,6 +311,7 @@ fn handle_movement(
                 .iter_mut()
                 .chain(enviroment.1.iter_mut())
                 .chain(enviroment.2.iter_mut())
+                
             {
                 rect.y += player_speed;
             }
@@ -311,6 +339,7 @@ fn handle_movement(
                 .iter_mut()
                 .chain(enviroment.1.iter_mut())
                 .chain(enviroment.2.iter_mut())
+                
             {
                 rect.y -= player_speed;
             }
@@ -382,27 +411,7 @@ fn handle_movement(
                    __/ |                                         
                   |___/                          
 */
-fn NewDumbEnemy(enviornment: &mut(Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Rect>,Vec<Enemy>,),keys: &mut KeyState){
-
-    
-        enviornment.4.push(Enemy { Speed: (12), GuyRec: (Rect::new(0, 0, 100, 100)) })
-    }
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
+ 
 fn stage_testing(
     event_pump: &mut EventPump,
     keys: &mut KeyState,
@@ -501,6 +510,7 @@ fn stage_testing(
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
     }
 }
+
 
 
 
