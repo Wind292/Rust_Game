@@ -9,6 +9,8 @@ use crate::Data::UtilEntity::UtilEntity;
 use image::{open, DynamicImage, Rgba};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+use sdl2::libc::FILENAME_MAX;
+use sdl2::messagebox::MessageBoxColorScheme;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::{self, Canvas};
@@ -37,6 +39,7 @@ const MAP_DIRECTORY: &str = "maps/testlevel.mp"; // can have a file extention of
 const CUBE_SIZE: u32 = 100;
 
 //FPS COUNTER STUFF
+
 
 #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
 
@@ -84,6 +87,29 @@ fn main() -> Result<(), String> {
         "highlitedarrow".to_string(),
         compile_texture("assets/highlitedarrow.png"),
     );
+    
+
+    for filename in vec!["bomb","bomb2","bomb3","bomb4","bomb5","bomb6","bomb7","bomb8"]{
+        let root = "assets/bomb/".to_string();
+        let fullpath = root + filename;
+
+        textures.insert(
+            filename.to_string(),
+            compile_texture(&fullpath),
+        );
+    } //add all bombs to textures
+    for filename in vec!["smoke","smoke2","smoke3","smoke4","smoke5","smoke6","smoke7"]{
+        let root = "assets/smoke/".to_string();
+        let fullpath = root + filename;
+
+        textures.insert(
+            filename.to_string(),
+            compile_texture(&fullpath),
+        );
+    } //add all bombs to textures
+
+
+
 
     // constant vars through stages
     // keys
@@ -222,6 +248,71 @@ fn manage_player_class(
                 }
             }
         }
+        Class::Bomber =>{
+            if util_count > &mut 0 {
+                if key_pressed_at_frame.up {
+                    enviroment.3.push(UtilEntity {
+                        RectObj: Rect::new(
+                            (SCREEN_WIDTH / 2) as i32,
+                            (SCREEN_HEIGHT / 2) as i32,
+                            10,
+                            100,
+                        ),
+                        Damage: 10,
+                        Dir: Direction::Up,
+                        Type: UtilType::Bomb,
+                        Speed: -10,
+                        Health: 1,
+                    });
+                    *util_count -= 1;
+                } else if key_pressed_at_frame.down {
+                    enviroment.3.push(UtilEntity {
+                        RectObj: Rect::new(
+                            (SCREEN_WIDTH / 2) as i32,
+                            (SCREEN_HEIGHT / 2) as i32,
+                            10,
+                            100,
+                        ),
+                        Damage: 10,
+                        Dir: Direction::Down,
+                        Type: UtilType::Bomb,
+                        Speed: 10,
+                        Health: 1,
+                    });
+                    *util_count -= 1;
+                } else if key_pressed_at_frame.left {
+                    enviroment.3.push(UtilEntity {
+                        RectObj: Rect::new(
+                            (SCREEN_WIDTH / 2) as i32,
+                            (SCREEN_HEIGHT / 2) as i32,
+                            100,
+                            10,
+                        ),
+                        Damage: 10,
+                        Dir: Direction::Left,
+                        Type: UtilType::Bomb,
+                        Speed: -10,
+                        Health: 1,
+                    });
+                    *util_count -= 1;
+                } else if key_pressed_at_frame.right {
+                    enviroment.3.push(UtilEntity {
+                        RectObj: Rect::new(
+                            (SCREEN_WIDTH / 2) as i32,
+                            (SCREEN_HEIGHT / 2) as i32,
+                            100,
+                            10,
+                        ),
+                        Damage: 10,
+                        Dir: Direction::Right,
+                        Type: UtilType::Bomb,
+                        Speed: 10,
+                        Health: 1,
+                    });
+                    *util_count -= 1;
+                }
+            }
+        }
         _ => {}
     }
 
@@ -230,27 +321,61 @@ fn manage_player_class(
     for (index, util) in enviroment.3.iter_mut().enumerate() {
         match util.Type {
             UtilType::Arrow => {
-                if util.Health > 0 {
-                    match util.Dir {
+                if util.Health > 0 { // if is not dead
+                    match util.Dir { // for the dir that the util is moving in
                         Direction::Down | Direction::Up => {
-                            util.RectObj.y += util.Speed;
-                            if util.RectObj.y > (SCREEN_HEIGHT * 2) as i32
+                            util.RectObj.y += util.Speed; // add speed for movement
+                            if util.RectObj.y > (SCREEN_HEIGHT * 2) as i32 // if is off screen
                                 || util.RectObj.y < -((SCREEN_HEIGHT * 2) as i32)
                             {
-                                elements_to_remove.push(index); // Mark for removal
+                                elements_to_remove.push(index); // Mark for removal / despawn
                             }
                         }
                         Direction::Left | Direction::Right => {
-                            util.RectObj.x += util.Speed;
-                            if util.RectObj.x > (SCREEN_WIDTH * 2) as i32
+                            util.RectObj.x += util.Speed; // add speed for movement
+                            if util.RectObj.x > (SCREEN_WIDTH * 2) as i32 // if is off screen
                                 || util.RectObj.x < -((SCREEN_WIDTH * 2) as i32)
                             {
-                                elements_to_remove.push(index); // Mark for removal
+                                elements_to_remove.push(index); // Mark for removal / despawn
                             }
                         }
                         _ => {}
                     }
                 }
+                for rect in enviroment
+                    .0
+                    .iter_mut()
+                    .chain(enviroment.1.iter_mut())
+                    .chain(enviroment.2.iter_mut())
+                {
+                    if util.RectObj.has_intersection(*rect) { // make arrow stuck in block and set util.health = 0
+                        util.Health = 0;
+                    }
+                }
+                if util.Health == 0 && util.RectObj.has_intersection(square) { // if player picks up adds to utilcount
+                    *util_count += 1;
+                    elements_to_remove.push(index);
+                }
+            },
+
+
+            UtilType::Bomb => {
+                // Handle movement for bomb
+                match util.Dir {
+                    Direction::Down | Direction::Up => {
+                        util.RectObj.y += util.Speed; // moves the bomb
+                        util.Speed -= 1; //slows down the bomb
+                    }
+                    Direction::Left | Direction::Right => {
+                        util.RectObj.x += util.Speed; // moves the bomb
+                        util.Speed -= 1; // slows down the bomb
+                    }
+                    _ => {}
+                }
+
+                util.Health -= 1;
+            
+
                 for rect in enviroment
                     .0
                     .iter_mut()
@@ -265,7 +390,8 @@ fn manage_player_class(
                     *util_count += 1;
                     elements_to_remove.push(index);
                 }
-            }
+            },
+        _=>{}
         }
     }
 
@@ -661,6 +787,17 @@ fn stage_testing(
                             );
                         }
                     }
+                }
+                else if util.Type == UtilType::Bomb{
+                    let rectx = util.RectObj.x();
+                    let recty = util.RectObj.y();
+                    render_texture(
+                        textures.get("bomb".to_string().push_str(util.Health.to_string())).unwrap(),
+                        canvas,
+                        6,
+                        rectx,
+                        recty,
+                    );
                 }
             }
         }
