@@ -1,17 +1,6 @@
 extern crate sdl2;
 mod Data;
-use sdl2::event;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use sdl2::pixels::Color;
-use sdl2::rect::Rect;
-use sdl2::render::Canvas;
-use sdl2::video::Window;
-use sdl2::EventPump;
-use std::collections::btree_map::Keys;
-use std::env;
-use std::fs;
-use std::time::{Duration, Instant};
+
 use crate::Data::DumbEnemy::Enemy;
 use crate::Data::FPSCounter::FPSCounter;
 use crate::Data::KeyState::KeyState;
@@ -21,46 +10,24 @@ use crate::Data::Direction::Direction;
 use crate::Data::UtilType::UtilType;
 use crate::Data::Class::Class;
 const FPS: u32 = 60;
+const DESIRED_DELTA: u32 = 1000 / FPS;
 const CAPTION: &str = "GAME";
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 600;
 const MAP_DIRECTORY: &str = "maps/testlevel.mp"; // can have a file extention of anything
 const CUBE_SIZE: u32 = 100;
+
 //FPS COUNTER STUFF
 
 
 
 
-impl FPSCounter {
-    fn new() -> Self {
-        FPSCounter {
-            frame_count: 0,
-            last_update: Instant::now(),
-            current_fps: 0, // Initialize current FPS
-        }
-    }
 
-    fn tick(&mut self) {
-        self.frame_count += 1;
-        let now = Instant::now();
-        if now.duration_since(self.last_update) >= Duration::from_secs(1) {
-            self.current_fps = self.frame_count;
-            self.frame_count = 0;
-            self.last_update = now;
-        }
-    }
-
-    fn get_current_fps(&self) -> u32 {
-        self.current_fps
-    }
-}
+    
 
 fn main() -> Result<(), String> {
-
-
-
     let sdl_context = sdl2::init()?;
-    let video_subsystem = sdl_context.video()?;
+    let video_subsystem: sdl2::VideoSubsystem = sdl_context.video()?;
     let mut window = video_subsystem
         .window(CAPTION, SCREEN_WIDTH, SCREEN_HEIGHT)
         .position_centered()
@@ -71,7 +38,30 @@ fn main() -> Result<(), String> {
     let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
     let mut event_pump = sdl_context.event_pump()?;
 
-    
+    // Images stuff
+    let mut textures: HashMap<String, Vec<(u8, u8, u8, u8)>> = HashMap::new();
+
+    textures.insert(
+        "arrowdown".to_string(),
+        compile_texture("assets/arrowdown.png"),
+    );
+    textures.insert("arrowup".to_string(), compile_texture("assets/arrowup.png"));
+    textures.insert(
+        "arrowleft".to_string(),
+        compile_texture("assets/arrowleft.png"),
+    );
+    textures.insert(
+        "arrowright".to_string(),
+        compile_texture("assets/arrowright.png"),
+    );
+    textures.insert(
+        "stone".to_string(),
+        compile_texture("assets/squares/stone.png"),
+    );
+    textures.insert(
+        "highlitedarrow".to_string(),
+        compile_texture("assets/highlitedarrow.png"),
+    );
 
     // constant vars through stages
     // keys
@@ -83,9 +73,9 @@ fn main() -> Result<(), String> {
         right: false,
         up: false,
         left: false,
-        down: false
+        down: false,
     };
-    let mut keys_pressed_at_frame = KeyState{
+    let mut keys_pressed_at_frame = KeyState {
         w: false,
         a: false,
         s: false,
@@ -93,31 +83,41 @@ fn main() -> Result<(), String> {
         right: false,
         up: false,
         left: false,
-        down: false
+        down: false,
     };
 
     let check_in_frame_rect = Rect::new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    let mut fps_counter = FPSCounter::new();
     let player_speed = 10;
     let player_class = Class::Archer;
     let mut current_stage = Stage::Testing;
 
-
     match current_stage {
+        Stage::Testing => stage_testing(
+            &mut event_pump,
+            &mut keys,
+            &player_speed,
+            &mut canvas,
+            check_in_frame_rect,
+            player_class,
+            textures,
+            sdl_context,
+        ),
 
-        Stage::Testing => stage_testing(&mut event_pump, &mut keys, &player_speed, &mut canvas, check_in_frame_rect, &mut fps_counter,player_class),
-
-        _=>{}
+        _ => {}
     }
-
-
-
 
     Ok(())
 }
 
-
-fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_frame: KeyState ,canvas: &mut Canvas<Window>,enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>),util_count:&mut i32){
+fn manage_player_class(
+    player_class: &Class,
+    keys: &KeyState,
+    key_pressed_at_frame: KeyState,
+    canvas: &mut Canvas<Window>,
+    enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>),
+    util_count: &mut i32,
+    textures: &HashMap<String, Vec<(u8, u8, u8, u8)>>,
+) {
     let square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
         ((SCREEN_HEIGHT / 2) - 50) as i32,
@@ -125,15 +125,26 @@ fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_fram
         100,
     );
 
+    if *util_count >= 1000 {
+        draw_string(util_count.to_string(), 10, canvas, (255, 255, 0), 0, 0);
+    } else if *util_count >= 100 {
+        draw_string(util_count.to_string(), 10, canvas, (255, 255, 0), 10, 0);
+    } else {
+        draw_string(util_count.to_string(), 10, canvas, (255, 255, 0), 30, 0);
+    }
 
-
-    draw_string(util_count.to_string(), 20, canvas, (255,255,0), 0, 0);
+    render_texture(textures.get("highlitedarrow").unwrap(), canvas, 10, 5, 50);
     match player_class {
         Class::Archer => {
-            if util_count > &mut 0{
-                if key_pressed_at_frame.up{
-                    enviroment.3.push(UtilEntity{
-                        RectObj:Rect::new((SCREEN_WIDTH/2) as i32, (SCREEN_HEIGHT/2) as i32, 10, 30),
+            if util_count > &mut 0 {
+                if key_pressed_at_frame.up {
+                    enviroment.3.push(UtilEntity {
+                        RectObj: Rect::new(
+                            (SCREEN_WIDTH / 2) as i32,
+                            (SCREEN_HEIGHT / 2) as i32,
+                            10,
+                            100,
+                        ),
                         Damage: 0,
                         Dir: Direction::Up,
                         Type: UtilType::Arrow,
@@ -141,10 +152,14 @@ fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_fram
                         Health: 1,
                     });
                     *util_count -= 1;
-                }
-                else if key_pressed_at_frame.down{
-                    enviroment.3.push(UtilEntity{
-                        RectObj:Rect::new((SCREEN_WIDTH/2) as i32, (SCREEN_HEIGHT/2) as i32, 10, 30),
+                } else if key_pressed_at_frame.down {
+                    enviroment.3.push(UtilEntity {
+                        RectObj: Rect::new(
+                            (SCREEN_WIDTH / 2) as i32,
+                            (SCREEN_HEIGHT / 2) as i32,
+                            10,
+                            100,
+                        ),
                         Damage: 0,
                         Dir: Direction::Down,
                         Type: UtilType::Arrow,
@@ -152,10 +167,14 @@ fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_fram
                         Health: 1,
                     });
                     *util_count -= 1;
-                }  
-                else if key_pressed_at_frame.left{
-                    enviroment.3.push(UtilEntity{
-                        RectObj:Rect::new((SCREEN_WIDTH/2) as i32, (SCREEN_HEIGHT/2) as i32, 30, 10),
+                } else if key_pressed_at_frame.left {
+                    enviroment.3.push(UtilEntity {
+                        RectObj: Rect::new(
+                            (SCREEN_WIDTH / 2) as i32,
+                            (SCREEN_HEIGHT / 2) as i32,
+                            100,
+                            10,
+                        ),
                         Damage: 0,
                         Dir: Direction::Left,
                         Type: UtilType::Arrow,
@@ -163,10 +182,14 @@ fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_fram
                         Health: 1,
                     });
                     *util_count -= 1;
-                }
-                else if key_pressed_at_frame.right{
-                    enviroment.3.push(UtilEntity{
-                        RectObj:Rect::new((SCREEN_WIDTH/2) as i32, (SCREEN_HEIGHT/2) as i32, 30, 10),
+                } else if key_pressed_at_frame.right {
+                    enviroment.3.push(UtilEntity {
+                        RectObj: Rect::new(
+                            (SCREEN_WIDTH / 2) as i32,
+                            (SCREEN_HEIGHT / 2) as i32,
+                            100,
+                            10,
+                        ),
                         Damage: 0,
                         Dir: Direction::Right,
                         Type: UtilType::Arrow,
@@ -174,13 +197,10 @@ fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_fram
                         Health: 1,
                     });
                     *util_count -= 1;
-                }  
+                }
             }
-
-
-
-        }, _=>{}
-    
+        }
+        _ => {}
     }
 
     let mut elements_to_remove: Vec<usize> = Vec::new(); // Store indices of elements to remove
@@ -188,31 +208,38 @@ fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_fram
     for (index, util) in enviroment.3.iter_mut().enumerate() {
         match util.Type {
             UtilType::Arrow => {
-                if util.Health > 0{
+                if util.Health > 0 {
                     match util.Dir {
                         Direction::Down | Direction::Up => {
                             util.RectObj.y += util.Speed;
-                            if util.RectObj.y > (SCREEN_HEIGHT * 2) as i32 || util.RectObj.y < -((SCREEN_HEIGHT * 2) as i32){
+                            if util.RectObj.y > (SCREEN_HEIGHT * 2) as i32
+                                || util.RectObj.y < -((SCREEN_HEIGHT * 2) as i32)
+                            {
                                 elements_to_remove.push(index); // Mark for removal
                             }
-                        },
+                        }
                         Direction::Left | Direction::Right => {
                             util.RectObj.x += util.Speed;
-                            if util.RectObj.x > (SCREEN_WIDTH * 2) as i32 || util.RectObj.x < -((SCREEN_WIDTH * 2) as i32){
+                            if util.RectObj.x > (SCREEN_WIDTH * 2) as i32
+                                || util.RectObj.x < -((SCREEN_WIDTH * 2) as i32)
+                            {
                                 elements_to_remove.push(index); // Mark for removal
                             }
-                        },
-                    _ => {}
-                    }    
+                        }
+                        _ => {}
+                    }
                 }
-                for rect in enviroment.0.iter_mut()
-                .chain(enviroment.1.iter_mut())
-                .chain(enviroment.2.iter_mut()){
-                    if util.RectObj.has_intersection(*rect){
+                for rect in enviroment
+                    .0
+                    .iter_mut()
+                    .chain(enviroment.1.iter_mut())
+                    .chain(enviroment.2.iter_mut())
+                {
+                    if util.RectObj.has_intersection(*rect) {
                         util.Health = 0;
                     }
                 }
-                if util.Health == 0 && util.RectObj.has_intersection(square){
+                if util.Health == 0 && util.RectObj.has_intersection(square) {
                     *util_count += 1;
                     elements_to_remove.push(index);
                 }
@@ -223,7 +250,6 @@ fn manage_player_class(player_class: &Class, keys:&KeyState, key_pressed_at_fram
     for &index in elements_to_remove.iter().rev() {
         enviroment.3.remove(index);
     }
-    
 }
 
 fn open_file(dir: &str) -> String {
@@ -231,10 +257,13 @@ fn open_file(dir: &str) -> String {
     contents
 }
 //red     //green  //yellow
-fn load_map(enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>), file: String) {
+fn load_map(
+    enviroment: &mut (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>),
+    file: String,
+) {
     let mut skip = false;
     let mut yval = 0;
-    let mut xval = 0;
+    let mut xval: i32 = 0;
 
     for char in file.chars() {
         if char == '\n' {
@@ -293,10 +322,11 @@ fn handle_movement(
     if keys.w {
         let mut move_back = false;
         square.y -= player_speed;
-        for rect in environment.0.iter_mut()
-        .chain(environment.1.iter_mut())
-        .chain(environment.2.iter_mut())
-    
+        for rect in environment
+            .0
+            .iter_mut()
+            .chain(environment.1.iter_mut())
+            .chain(environment.2.iter_mut())
         {
             if rect.has_intersection(square) {
                 move_back = true;
@@ -305,11 +335,12 @@ fn handle_movement(
         if move_back {
             square.y += player_speed;
         } else {
-            for rect in environment.0.iter_mut()
-            .chain(environment.1.iter_mut())
-            .chain(environment.2.iter_mut())
-            .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
-        
+            for rect in environment
+                .0
+                .iter_mut()
+                .chain(environment.1.iter_mut())
+                .chain(environment.2.iter_mut())
+                .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
             {
                 rect.y += player_speed;
             }
@@ -319,10 +350,11 @@ fn handle_movement(
     if keys.s {
         let mut move_back = false;
         square.y += player_speed;
-        for rect in environment.0.iter_mut()
-        .chain(environment.1.iter_mut())
-        .chain(environment.2.iter_mut())
-    
+        for rect in environment
+            .0
+            .iter_mut()
+            .chain(environment.1.iter_mut())
+            .chain(environment.2.iter_mut())
         {
             if rect.has_intersection(square) {
                 move_back = true;
@@ -331,11 +363,12 @@ fn handle_movement(
         if move_back {
             square.y -= player_speed;
         } else {
-            for rect in environment.0.iter_mut()
-            .chain(environment.1.iter_mut())
-            .chain(environment.2.iter_mut())
-            .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
-        
+            for rect in environment
+                .0
+                .iter_mut()
+                .chain(environment.1.iter_mut())
+                .chain(environment.2.iter_mut())
+                .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
             {
                 rect.y -= player_speed;
             }
@@ -345,10 +378,11 @@ fn handle_movement(
     if keys.a {
         let mut move_back = false;
         square.x -= player_speed;
-        for rect in environment.0.iter_mut()
-        .chain(environment.1.iter_mut())
-        .chain(environment.2.iter_mut())
-    
+        for rect in environment
+            .0
+            .iter_mut()
+            .chain(environment.1.iter_mut())
+            .chain(environment.2.iter_mut())
         {
             if rect.has_intersection(square) {
                 move_back = true;
@@ -357,11 +391,12 @@ fn handle_movement(
         if move_back {
             square.x += player_speed;
         } else {
-            for rect in environment.0.iter_mut()
-            .chain(environment.1.iter_mut())
-            .chain(environment.2.iter_mut())
-            .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
-        
+            for rect in environment
+                .0
+                .iter_mut()
+                .chain(environment.1.iter_mut())
+                .chain(environment.2.iter_mut())
+                .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
             {
                 rect.x += player_speed;
             }
@@ -371,10 +406,11 @@ fn handle_movement(
     if keys.d {
         let mut move_back = false;
         square.x += player_speed;
-        for rect in environment.0.iter_mut()
-        .chain(environment.1.iter_mut())
-        .chain(environment.2.iter_mut())
-    
+        for rect in environment
+            .0
+            .iter_mut()
+            .chain(environment.1.iter_mut())
+            .chain(environment.2.iter_mut())
         {
             if rect.has_intersection(square) {
                 move_back = true;
@@ -383,44 +419,29 @@ fn handle_movement(
         if move_back {
             square.x -= player_speed;
         } else {
-            for rect in environment.0.iter_mut()
-            .chain(environment.1.iter_mut())
-            .chain(environment.2.iter_mut())
-            .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
+            for rect in environment
+                .0
+                .iter_mut()
+                .chain(environment.1.iter_mut())
+                .chain(environment.2.iter_mut())
+                .chain(environment.3.iter_mut().map(|item| &mut item.RectObj))
             {
                 rect.x -= player_speed;
             }
         }
-    
-    }    
+    }
 }
 
-
-
-
 /*
-   _____ _                          _          _               _ 
+   _____ _                          _          _               _
   / ____| |                        | |        | |             | |
  | (___ | |_ __ _  __ _  ___  ___  | |__   ___| | _____      _| |
   \___ \| __/ _` |/ _` |/ _ \/ __| | '_ \ / _ \ |/ _ \ \ /\ / / |
   ____) | || (_| | (_| |  __/\__ \ | |_) |  __/ | (_) \ V  V /|_|
  |_____/ \__\__,_|\__, |\___||___/ |_.__/ \___|_|\___/ \_/\_/ (_)
-                   __/ |                                         
-                  |___/                          
-*/    
-
-
-
-
-
-
-
-
-
-
-    
-
-
+                   __/ |
+                  |___/
+*/
 
 fn stage_testing(
     event_pump: &mut EventPump,
@@ -428,13 +449,25 @@ fn stage_testing(
     player_speed: &i32,
     canvas: &mut Canvas<Window>,
     check_in_frame_rect: Rect,
-    fps_counter: &mut FPSCounter,
-    player_class: Class
+    player_class: Class,
+    textures: HashMap<String, Vec<(u8, u8, u8, u8)>>,
+    sdl_context: sdl2::Sdl,
 ) {
-    
-    let mut util_count = 1000; 
+    let mut frame_count = 0;
+    let mut last_frame_time = Instant::now();
+    let mut current_fps = 0;
 
-    let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>) = (vec![], vec![], vec![], vec![], vec![]);
+    let timer_subsystem: TimerSubsystem = sdl_context.timer().unwrap();
+    let mut util_count = 100;
+
+    let larger_check_in_frame_rect = Rect::new(
+        -(SCREEN_WIDTH as i32),
+        -(SCREEN_HEIGHT as i32),
+        SCREEN_WIDTH * 2,
+        SCREEN_HEIGHT * 2,
+    );
+    let mut enviroment: (Vec<Rect>, Vec<Rect>, Vec<Rect>, Vec<UtilEntity>, Vec<Enemy>) =
+        (vec![], vec![], vec![], vec![], vec![]);
 
     let mut square = Rect::new(
         ((SCREEN_WIDTH / 2) - 50) as i32,
@@ -446,7 +479,8 @@ fn stage_testing(
     load_map(&mut enviroment, open_file(MAP_DIRECTORY));
 
     'running: loop {
-        let mut keys_pressed_at_frame = KeyState{
+        let startLoop = timer_subsystem.ticks();
+        let mut keys_pressed_at_frame = KeyState {
             w: false,
             a: false,
             s: false,
@@ -454,24 +488,46 @@ fn stage_testing(
             right: false,
             up: false,
             left: false,
-            down: false
+            down: false,
         };
-    
-
 
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => break 'running,
                 Event::KeyDown { keycode, .. } => match keycode {
                     Some(Keycode::Escape) => break 'running,
-                    Some(Keycode::A) => {keys.a = true;keys_pressed_at_frame.a = true},
-                    Some(Keycode::D) => {keys.d = true;keys_pressed_at_frame.d = true},
-                    Some(Keycode::S) => {keys.s = true;keys_pressed_at_frame.s = true},
-                    Some(Keycode::W) => {keys.w = true;keys_pressed_at_frame.w = true},
-                    Some(Keycode::Right) => {keys.right = true;keys_pressed_at_frame.right = true},
-                    Some(Keycode::Up) => {keys.up = true;keys_pressed_at_frame.up = true},
-                    Some(Keycode::Down) => {keys.down = true;keys_pressed_at_frame.down = true},
-                    Some(Keycode::Left) => {keys.left = true;keys_pressed_at_frame.left = true},                
+                    Some(Keycode::A) => {
+                        keys.a = true;
+                        keys_pressed_at_frame.a = true
+                    }
+                    Some(Keycode::D) => {
+                        keys.d = true;
+                        keys_pressed_at_frame.d = true
+                    }
+                    Some(Keycode::S) => {
+                        keys.s = true;
+                        keys_pressed_at_frame.s = true
+                    }
+                    Some(Keycode::W) => {
+                        keys.w = true;
+                        keys_pressed_at_frame.w = true
+                    }
+                    Some(Keycode::Right) => {
+                        keys.right = true;
+                        keys_pressed_at_frame.right = true
+                    }
+                    Some(Keycode::Up) => {
+                        keys.up = true;
+                        keys_pressed_at_frame.up = true
+                    }
+                    Some(Keycode::Down) => {
+                        keys.down = true;
+                        keys_pressed_at_frame.down = true
+                    }
+                    Some(Keycode::Left) => {
+                        keys.left = true;
+                        keys_pressed_at_frame.left = true
+                    }
                     _ => {}
                 },
                 Event::KeyUp { keycode, .. } => match keycode {
@@ -484,14 +540,9 @@ fn stage_testing(
                     Some(Keycode::Down) => keys.down = false,
                     Some(Keycode::Left) => keys.left = false,
 
-
-
-
-                    
                     _ => {}
                 },
-                
-                
+
                 _ => {}
             }
         }
@@ -499,8 +550,15 @@ fn stage_testing(
         // LOGIC CODE BELOW
 
         handle_movement(&keys, &player_speed, &mut enviroment); // handle movement and camera movement
-        // println!("hello");
-        manage_player_class(&player_class, keys, keys_pressed_at_frame, canvas,&mut enviroment, &mut util_count);
+        manage_player_class(
+            &player_class,
+            keys,
+            keys_pressed_at_frame,
+            canvas,
+            &mut enviroment,
+            &mut util_count,
+            &textures,
+        );
         // DRAW CODE BELOW
 
         //Set background
@@ -511,10 +569,9 @@ fn stage_testing(
         //Draw other things
 
         for rect in &enviroment.0 {
-            //YELLOW
+            //YELLOW / STONE
             if rect.has_intersection(check_in_frame_rect) {
-                canvas.set_draw_color(Color::RGB(255, 255, 0));
-                canvas.fill_rect(*rect).unwrap();
+                render_texture(textures.get("stone").unwrap(), canvas, 10, rect.x, rect.y);
             }
         }
         for rect in &enviroment.1 {
@@ -533,28 +590,80 @@ fn stage_testing(
         }
         for util in &enviroment.3 {
             //RED
-            if util.RectObj.has_intersection(check_in_frame_rect) {
-                canvas.set_draw_color(Color::RGB(255, 0, 0));
-                canvas.fill_rect(util.RectObj).unwrap();
+            // let Some(value) = my_dict.get("two");
+            if util.RectObj.has_intersection(larger_check_in_frame_rect) {
+                if util.Type == UtilType::Arrow {
+                    match util.Dir {
+                        Direction::Down => {
+                            let rectx = util.RectObj.x() - 16;
+                            let recty = util.RectObj.y();
+                            render_texture(
+                                textures.get("arrowdown").unwrap(),
+                                canvas,
+                                6,
+                                rectx,
+                                recty,
+                            );
+                        }
+                        Direction::Up => {
+                            let rectx = util.RectObj.x() - 16;
+                            let recty = util.RectObj.y();
+                            render_texture(
+                                textures.get("arrowup").unwrap(),
+                                canvas,
+                                6,
+                                rectx,
+                                recty,
+                            );
+                        }
+                        Direction::Left => {
+                            let rectx = util.RectObj.x();
+                            let recty = util.RectObj.y();
+                            render_texture(
+                                textures.get("arrowleft").unwrap(),
+                                canvas,
+                                6,
+                                rectx,
+                                recty,
+                            );
+                        }
+                        Direction::Right => {
+                            let rectx = util.RectObj.x();
+                            let recty = util.RectObj.y();
+                            render_texture(
+                                textures.get("arrowright").unwrap(),
+                                canvas,
+                                6,
+                                rectx,
+                                recty,
+                            );
+                        }
+                    }
+                }
             }
         }
-
-
 
         canvas.set_draw_color(Color::RGB(0, 0, 255));
         canvas.fill_rect(square).unwrap();
 
-        fps_counter.tick();
+        let delta = timer_subsystem.ticks() - startLoop;
 
-        let current_fps = fps_counter.get_current_fps();
+        frame_count += 1;
+        let elapsed_time = last_frame_time.elapsed();
+        if elapsed_time.as_secs() >= 1 {
+            current_fps = (frame_count as f32 / elapsed_time.as_secs_f32()) as i32;
+            frame_count = 0;
+            last_frame_time = Instant::now();
+        }
+
         let new_title = format!("FPS: {} / {}", current_fps, FPS);
         canvas.window_mut().set_title(&new_title).unwrap();
 
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / FPS));
+        if delta < DESIRED_DELTA {
+            ::std::thread::sleep(Duration::new(0, (DESIRED_DELTA - delta) * 1_000_000))
+        }
     }
 }
-
-
 
 fn draw_string(
     number: String,
@@ -702,4 +811,86 @@ fn rect_on_5x5_grid(number: i32, size: u32, string_location: u32, x: i32, y: i32
         size,
         size,
     )
+}
+
+fn render_texture(
+    texture: &Vec<(u8, u8, u8, u8)>,
+    canvas: &mut Canvas<Window>,
+    size: u32,
+    xloc: i32,
+    yloc: i32,
+) {
+    let data = texture;
+    let mut x = 0;
+    let mut y = 0;
+    for t in data {
+        if *t == (0, 0, 0, 2) {
+            // new line
+            y += 1;
+            x = 0;
+        } else if t.3 == 0 {
+            //AKA null text or transparent
+            x += 1;
+        } else {
+            x += 1;
+            canvas.set_draw_color(Color::RGB(t.0, t.1, t.2));
+
+            let cx = (x * size as i32) + xloc;
+            let cy = (y * size as i32) + yloc;
+
+            canvas
+                .fill_rect(Rect::new(cx - size as i32, cy, size, size))
+                .unwrap();
+        }
+    }
+}
+fn cast_img(rect: Rect, img: Vec<(u8, u8, u8, u8)>, canvas: &mut Canvas<Window>) {
+    render_texture(
+        &img,
+        canvas,
+        ((rect.width() + rect.height()) / 2) as u32,
+        rect.x,
+        rect.y,
+    );
+}
+
+fn compile_texture(image_path: &str) -> Vec<(u8, u8, u8, u8)> {
+
+    let mut img: DynamicImage = DynamicImage::new_rgba8(1, 1); // Default placeholder image
+    let mut finalconv: Vec<(u8, u8, u8, u8)> = vec![];
+    let mut error_threw = false;
+
+    if let Ok(image_file) = open(image_path) {
+        img = image_file; // Assign the loaded image to 'img'
+    } else {
+        println!("Failed to open image :'{}'", image_path);
+        let mut file = File::open("null_texture.json").expect("Unable to open file");
+        let mut json_data = String::new();
+        file.read_to_string(&mut json_data).expect("Unable to read file");
+        let color_tuples: Vec<(u8,u8,u8,u8)> = serde_json::from_str(&json_data).expect("JSON deserialization failed");
+        finalconv = color_tuples;
+
+        error_threw = true
+    }
+    if !error_threw {
+        let x: i32 = img.width() as i32;
+        let pixels = img
+            .to_rgba8()
+            .pixels()
+            .map(|&p| p.clone())
+            .collect::<Vec<Rgba<u8>>>();
+        let mut finalconv: Vec<(u8, u8, u8, u8)> = vec![];
+        let mut c = -1;
+        for pixel in &pixels {
+            c += 1;
+            if c == x {
+                finalconv.push((0, 0, 0, 2));
+                c = 0;
+            }
+            finalconv.push((pixel[0], pixel[1], pixel[2], pixel[3]));
+        }
+        finalconv
+    } else {
+        finalconv
+    }
 }
