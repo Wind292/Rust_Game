@@ -5,6 +5,25 @@ use crate::Data::DumbEnemy::Enemy;
 use crate::Data::FPSCounter::FPSCounter;
 use crate::Data::KeyState::KeyState;
 use crate::Data::UtilEntity::UtilEntity;
+
+use image::{open, DynamicImage, Rgba};
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
+use sdl2::pixels::Color;
+use sdl2::rect::Rect;
+use sdl2::render::{self, Canvas};
+use sdl2::sys::True;
+use sdl2::video::Window;
+use sdl2::EventPump;
+use sdl2::TimerSubsystem;
+use std::collections::HashMap;
+use std::fs;
+use std::time::{Duration, Instant};
+use serde::Deserialize;
+use std::fs::File;
+use std::io::Read;
+
+
 use crate::Data::Stage::Stage;
 use crate::Data::Direction::Direction;
 use crate::Data::UtilType::UtilType;
@@ -19,11 +38,14 @@ const CUBE_SIZE: u32 = 100;
 
 //FPS COUNTER STUFF
 
+#[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
 
+struct Texture {
+    x: u32,
+    y: u32,
+    data: Vec<(u8, u8, u8)>,
+}
 
-
-
-    
 
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
