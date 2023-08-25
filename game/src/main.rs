@@ -5,6 +5,7 @@ use crate::Data::DumbEnemy::Enemy;
 use crate::Data::FPSCounter::FPSCounter;
 use crate::Data::KeyState::KeyState;
 use crate::Data::UtilEntity::UtilEntity;
+
 use image::{open, DynamicImage, Rgba};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -23,6 +24,10 @@ use std::fs::File;
 use std::io::Read;
 
 
+use crate::Data::Stage::Stage;
+use crate::Data::Direction::Direction;
+use crate::Data::UtilType::UtilType;
+use crate::Data::Class::Class;
 const FPS: u32 = 60;
 const DESIRED_DELTA: u32 = 1000 / FPS;
 const CAPTION: &str = "GAME";
@@ -32,13 +37,8 @@ const MAP_DIRECTORY: &str = "maps/testlevel.mp"; // can have a file extention of
 const CUBE_SIZE: u32 = 100;
 
 //FPS COUNTER STUFF
+
 #[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
-enum Class {
-    Archer,
-    Swordsman,
-    Mage,
-    Tank,
-}
 
 struct Texture {
     x: u32,
@@ -46,27 +46,6 @@ struct Texture {
     data: Vec<(u8, u8, u8)>,
 }
 
-#[derive(PartialEq, Eq, Debug)] // lets you do !=, == and print it
-enum Stage {
-    Testing,
-    ChoosingClass,
-    L1,
-    L2,
-    L3,
-    L4,
-    L5,
-}
-#[derive(PartialEq, Eq, Debug)]
-pub enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-}
-#[derive(PartialEq, Eq, Debug)]
-pub enum UtilType {
-    Arrow,
-}
 
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
