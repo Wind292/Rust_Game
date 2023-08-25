@@ -1,0 +1,11 @@
+C:\Users\benja\OneDrive\Documents\GitHub\Rust_Game\game\target\debug\deps\gif-c3318ea920168315.rmeta: C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\lib.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\traits.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\common.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\reader\mod.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\reader\decoder.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\encoder.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\../README.md
+
+C:\Users\benja\OneDrive\Documents\GitHub\Rust_Game\game\target\debug\deps\gif-c3318ea920168315.d: C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\lib.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\traits.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\common.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\reader\mod.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\reader\decoder.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\encoder.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\../README.md
+
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\lib.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\traits.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\common.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\reader\mod.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\reader\decoder.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\encoder.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\gif-0.12.0\src\../README.md:

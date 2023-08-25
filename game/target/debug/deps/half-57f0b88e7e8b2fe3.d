@@ -1,0 +1,12 @@
+C:\Users\benja\OneDrive\Documents\GitHub\Rust_Game\game\target\debug\deps\half-57f0b88e7e8b2fe3.rmeta: C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\lib.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\bfloat.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\bfloat\convert.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\binary16.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\binary16\convert.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\leading_zeros.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\slice.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\vec.rs
+
+C:\Users\benja\OneDrive\Documents\GitHub\Rust_Game\game\target\debug\deps\half-57f0b88e7e8b2fe3.d: C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\lib.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\bfloat.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\bfloat\convert.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\binary16.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\binary16\convert.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\leading_zeros.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\slice.rs C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\vec.rs
+
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\lib.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\bfloat.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\bfloat\convert.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\binary16.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\binary16\convert.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\leading_zeros.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\slice.rs:
+C:\Users\benja\.cargo\registry\src\index.crates.io-6f17d22bba15001f\half-2.2.1\src\vec.rs:
